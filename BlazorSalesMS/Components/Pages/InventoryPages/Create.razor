@@ -1,0 +1,63 @@
+﻿@page "/inventories/create"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Inventory</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Inventory" OnValidSubmit="AddInventory" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="itemname" class="form-label">ItemName:</label> 
+                <InputText id="itemname" @bind-Value="Inventory.ItemName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Inventory.ItemName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="sku" class="form-label">SKU:</label> 
+                <InputText id="sku" @bind-Value="Inventory.SKU" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Inventory.SKU" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity:</label> 
+                <InputNumber id="quantity" @bind-Value="Inventory.Quantity" class="form-control" /> 
+                <ValidationMessage For="() => Inventory.Quantity" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="price" class="form-label">Price:</label> 
+                <InputNumber id="price" @bind-Value="Inventory.Price" class="form-control" /> 
+                <ValidationMessage For="() => Inventory.Price" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="expirationdate" class="form-label">ExpirationDate:</label> 
+                <InputDate id="expirationdate" @bind-Value="Inventory.ExpirationDate" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Inventory.ExpirationDate" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/inventories">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Inventory Inventory { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddInventory()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Inventories.Add(Inventory);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/inventories");
+    }
+}

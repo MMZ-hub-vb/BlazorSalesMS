@@ -1,0 +1,203 @@
+﻿@page "/admin"
+@using BlazorSalesMS.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject RoleManager<IdentityRole> RoleManager
+@inject UserManager<ApplicationUser> UserManager
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+<h3>Role Management</h3>
+<div class="row" style="background-color:azure">
+    <div class="col">
+        <a href="categories/create">Create New Category</a>
+    </div>
+    <div class="col">
+        <a href="units/create">Create New Unit</a>
+    </div>
+</div>
+<!-- Add Role -->
+<div class="mb-4">
+    <h5>Add New Role</h5>
+    <input @bind="newRole" placeholder="Role Name" class="form-control mb-2" />
+    <button class="btn btn-primary" @onclick="AddRole">Add Role</button>
+</div>
+
+<hr />
+<!-- Assign Role -->
+<div>
+    <h5>Assign Role to User</h5>
+    @if (userDtos is null)
+    {
+        <p>loding...</p>
+    }
+    else
+    {
+        <select @bind="userEmail" class="form-select mb-2">
+            <option value="">--Select User--</option>
+            @foreach (var user in userDtos)
+            {
+                <option value="@user.Email">@user.Email</option>
+            }
+        </select>
+    }
+    @if (roles is null)
+    {
+        <p>loding...</p>
+    }
+    else
+    {
+    <select @bind="selectedRole" class="form-select mb-2">
+        <option value="">--Select Role--</option>
+        @foreach (var role in roles)
+        {
+            <option value="@role.Name">@role.Name</option>
+        }
+    </select>
+    }
+    <button class="btn btn-success" @onclick="AssignRole">Assign Role</button>
+</div>
+    
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+    <div class="alert alert-info mt-3">@statusMessage</div>
+}
+<div>
+    <h5>Remove Role from User</h5>
+    @if (userDtos is null)
+    {
+        <p>loding...</p>
+    }
+    else
+    {
+        <select @bind="userId" class="form-select mb-2">
+            <option value="">--Select User--</option>
+            @foreach (var user in userDtos)
+            {
+                <option value="@user.Id">@user.Email</option>
+            }
+        </select>
+    }
+    <div>
+        <button class="btn btn-warning"  @onclick="getRoles">Get Roles</button>
+    </div>
+    <div class="alert alert-info mt-3">
+       @string.Join(", ", assainRoleList )
+    </div>
+    @if (roles is null)
+    {
+        <p>loding...</p>
+    }
+    else
+    {
+        <select @bind="selectedRole" class="form-select mb-2">
+            <option value="">--Select Role--</option>
+            @foreach (var role in roles)
+            {
+                <option value="@role.Name">@role.Name</option>
+            }
+        </select>
+    }
+    <button class="btn btn-danger" disabled="@disable1" @onclick="RemoveRole">Remove Role</button>
+</div>
+
+@if (!string.IsNullOrEmpty(statusMessage1))
+{
+    <div class="alert alert-info mt-3">@statusMessage1</div>
+}
+
+@code {
+    private string newRole = "";
+    private string userEmail = "";
+    private string userId;
+    private string selectedRole = "";
+    private string statusMessage = "";
+    private string statusMessage1 = "";
+    private bool disable1 =true;
+    private List<IdentityRole> roles = new();
+    private IdentityRole role = new();
+    List<ApplicationUser> userDtos = new List<ApplicationUser>();
+    private bool _isLoading;
+    private string assainRoleList;
+    protected override async Task OnInitializedAsync()
+    {
+        await  LoadData();
+
+    }
+    private async Task LoadData()
+    {
+        if (_isLoading) return;
+        _isLoading = true;
+        try
+        {
+            roles = await RoleManager.Roles.ToListAsync();
+            userDtos = await UserManager.Users.ToListAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task AddRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRole))
+        {
+            var result = await RoleManager.CreateAsync(new IdentityRole(newRole));
+
+            statusMessage = result.Succeeded ? $"Role '{newRole}' added." :
+            string.Join(", ", result.Errors.Select(e => e.Description));
+            roles = await RoleManager.Roles.ToListAsync();
+            newRole = "";
+            roles = await RoleManager.Roles.ToListAsync();
+        }
+
+    }
+
+    private async Task AssignRole()
+    {
+        var user = await UserManager.FindByEmailAsync(userEmail);
+        if (user == null)
+        {
+            statusMessage = "User not found.";
+            return;
+        }
+
+        if (!await RoleManager.RoleExistsAsync(selectedRole))
+        {
+            statusMessage = "Role does not exist.";
+            return;
+        }
+
+        var result = await UserManager.AddToRoleAsync(user, selectedRole);
+        statusMessage = result.Succeeded ? $"Assigned '{selectedRole}' to {userEmail}" :
+            string.Join(", ", result.Errors.Select(e => e.Description));
+    }
+    private async Task RemoveRole()
+    {
+        var user = await UserManager.FindByEmailAsync(userEmail);
+        if (user == null)
+        {
+            statusMessage = "User not found.";
+            return;
+        }
+
+        if (!await RoleManager.RoleExistsAsync(selectedRole))
+        {
+            statusMessage = "Role does not exist.";
+            return;
+        }
+
+        var result = await UserManager.RemoveFromRoleAsync(user, selectedRole);
+        statusMessage1 = result.Succeeded ? $"Removed '{selectedRole}' to {userEmail}" :
+        string.Join(", ", result.Errors.Select(e => e.Description));
+    }
+    async Task getRoles()
+    {
+        disable1 = false;
+        var user = await UserManager.FindByIdAsync(userId);
+
+        assainRoleList = string.Join(", ", await UserManager.GetRolesAsync(user));
+
+    }
+}

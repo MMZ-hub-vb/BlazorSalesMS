@@ -1,0 +1,48 @@
+﻿@page "/units/details"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Unit</h2>
+    <hr />
+    @if (unit is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">UnitName</dt>
+            <dd class="col-sm-10">@unit.UnitName</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@unit.Description</dd>
+        </dl>
+        <div>
+            <a href="@($"/units/edit?id={unit.Id}")">Edit</a> |
+            <a href="@($"/units")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Unit? unit;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        unit = await context.Unit.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (unit is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
