@@ -2,10 +2,8 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
-@using BlazorSalesMS.Data
-@implements IAsyncDisposable
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
-
+@rendermode InteractiveServer
 <PageTitle>Index</PageTitle>
 
 <h1>Index</h1>
@@ -13,8 +11,10 @@
 <p>
     <a href="inventories/create">Create New</a>
 </p>
-
-<QuickGrid Class="table" Items="context.Inventories">
+<div class="mb-3">
+    <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="search name"  style="width:200px" />
+</div>
+<QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped">
    
     <PropertyColumn Property="inventory => inventory.ItemName" />
     <PropertyColumn Property="inventory => inventory.Quantity" />
@@ -35,11 +35,22 @@
 
 @code {
     private ApplicationDbContext context = default!;
-
-    protected override void OnInitialized()
+    private string search = "";
+    private List<Inventory> inventories = [];
+    private IEnumerable<Inventory> filteredInventories =>
+         string.IsNullOrWhiteSpace(search)
+             ? inventories
+             : inventories.Where(i =>
+                 i.ItemName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+    protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
+        inventories = context.Inventories.ToList();
     }
-
+    void SearchItem()
+    {
+        context = DbFactory.CreateDbContext();
+        inventories = context.Inventories.Where(i => i.ItemName.Contains(search)).ToList();
+    }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
