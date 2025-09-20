@@ -17,11 +17,33 @@ namespace BlazorSalesMS.Data
         [Range(0, int.MaxValue, ErrorMessage = "Quantity must be a non-negative number.")]
         public int Quantity { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Quantity on hand must be a non-negative number.")]
+        public int QuantityOH { get; set; }
+
+        [Required(ErrorMessage = "Unit is required.")]
+        [StringLength(10, ErrorMessage = "Unit cannot exceed 10 characters.")]
+        public string Unit { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Category is required.")]
+        [StringLength(20, ErrorMessage = "Category cannot exceed 20 characters.")]
+        public string Category { get; set; } = string.Empty;
+
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
-        public decimal Price { get; set; }
+        public decimal PdnPrice { get; set; }
+
+        [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
+        public decimal SalesPrice { get; set; }
 
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "Expiration date is required.")]
-        public DateTime ExpirationDate { get; set; }
+        public DateTime LastUpdateQtyDate { get; set; } = DateTime.Now.Date;
+       
+        [DataType(DataType.Date)]
+        [Required(ErrorMessage = "Expiration date is required.")]
+        public DateTime LastUpdatePriceDate { get; set; } = DateTime.Now.Date;
+
+        [DataType(DataType.Date)]
+        [Required(ErrorMessage = "Expiration date is required.")]
+        public DateTime ExpirationDate { get; set; } = DateTime.Now.Date;
     }
 }

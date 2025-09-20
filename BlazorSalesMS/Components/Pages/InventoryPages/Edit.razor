@@ -38,9 +38,39 @@ else
                     <ValidationMessage For="() => Inventory.Quantity" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="price" class="form-label">Price:</label>
-                    <InputNumber id="price" @bind-Value="Inventory.Price" class="form-control" />
-                    <ValidationMessage For="() => Inventory.Price" class="text-danger" />
+                    <label for="quantityoh" class="form-label">QuantityOH:</label>
+                    <InputNumber id="quantityoh" @bind-Value="Inventory.QuantityOH" class="form-control" />
+                    <ValidationMessage For="() => Inventory.QuantityOH" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="unit" class="form-label">Unit:</label>
+                    <InputText id="unit" @bind-Value="Inventory.Unit" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Inventory.Unit" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category:</label>
+                    <InputText id="category" @bind-Value="Inventory.Category" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Inventory.Category" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="pdnprice" class="form-label">PdnPrice:</label>
+                    <InputNumber id="pdnprice" @bind-Value="Inventory.PdnPrice" class="form-control" />
+                    <ValidationMessage For="() => Inventory.PdnPrice" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="salesprice" class="form-label">SalesPrice:</label>
+                    <InputNumber id="salesprice" @bind-Value="Inventory.SalesPrice" class="form-control" />
+                    <ValidationMessage For="() => Inventory.SalesPrice" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastupdateqtydate" class="form-label">LastUpdateQtyDate:</label>
+                    <InputDate id="lastupdateqtydate" @bind-Value="Inventory.LastUpdateQtyDate" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Inventory.LastUpdateQtyDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastupdatepricedate" class="form-label">LastUpdatePriceDate:</label>
+                    <InputDate id="lastupdatepricedate" @bind-Value="Inventory.LastUpdatePriceDate" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Inventory.LastUpdatePriceDate" class="text-danger" />
                 </div>
                 <div class="mb-3">
                     <label for="expirationdate" class="form-label">ExpirationDate:</label>

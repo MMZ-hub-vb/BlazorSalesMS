@@ -16,13 +16,13 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
-                <label for="unitname" class="form-label">UnitName:</label> 
-                <InputText id="unitname" @bind-Value="Unit.UnitName" class="form-control" aria-required="true"/> 
+                <label for="unitname" class="form-label">Unit Name:</label> 
+                <InputText id="unitname" @bind-Value="Unit.UnitName" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Unit.UnitName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label> 
-                <InputText id="description" @bind-Value="Unit.Description" class="form-control" aria-required="true"/> 
+                <InputText id="description" @bind-Value="Unit.Description" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Unit.Description" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>
@@ -30,8 +30,14 @@
     </div>
 </div>
 
-<div>
-    <a href="/units">Back to List</a>
+<div class="row">
+    <div class="col-2">
+        <a href="/units">Back to List</a>
+    </div>
+    <div class="col-2">
+        <a href="/inventories/create">Back to Add Inventory</a>
+    </div>
+    
 </div>
 
 @code {

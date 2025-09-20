@@ -8,13 +8,19 @@
 @attribute [Authorize(Roles = "Admin")]
 <PageTitle>Index</PageTitle>
 
+<div class="row">
+    <div class="col-2">
+        <a href="categories/create">Create New</a>
+    </div>
+    <div class="col-2">
+        <a href="/inventories/create">Back to Add Inventory</a>
+    </div>
 
-<p>
-    <a href="categories/create">Create New</a>
-</p>
+</div>
+
 
 <QuickGrid Class="table" Items="context.Categories">
-    <PropertyColumn Property="category => category.CategoryName" />
+    <PropertyColumn Property="category => category.CategoryName" Title="Category Name" />
     <PropertyColumn Property="category => category.Description" />
 
     <TemplateColumn Context="category">

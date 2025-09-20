@@ -9,19 +9,24 @@
 
 <h1>Category</h1>
 <hr />
+@if(sping)
+{
+    <div class="spinner-border"></div>
+}
+
 <div class="row">
     <div class="col-md-4">
         <EditForm method="post" Model="Category" OnValidSubmit="AddCategory" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
-            <div class="mb-3">
+            <div class="mb-3 underline-input">
                 <label for="categoryname" class="form-label">Category Name:</label> 
-                <InputText id="categoryname" @bind-Value="Category.CategoryName" class="form-control" aria-required="true"/> 
+                <InputText id="categoryname" @bind-Value="Category.CategoryName" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Category.CategoryName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label> 
-                <InputText id="description" @bind-Value="Category.Description" class="form-control" aria-required="true"/> 
+                <InputText id="description" @bind-Value="Category.Description" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Category.Description" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>
@@ -36,13 +41,15 @@
 @code {
     [SupplyParameterFromForm]
     private Category Category { get; set; } = new();
-
+    bool sping = false;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddCategory()
     {
+        sping = true;
         using var context = DbFactory.CreateDbContext();
         context.Categories.Add(Category);
         await context.SaveChangesAsync();
+        sping = false;
         NavigationManager.NavigateTo("/categories");
     }
 }
