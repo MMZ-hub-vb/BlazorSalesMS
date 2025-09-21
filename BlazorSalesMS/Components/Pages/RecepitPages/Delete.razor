@@ -1,0 +1,91 @@
+﻿@page "/recepits/delete"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Recepit</h2>
+    <hr />
+    @if (recepit is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ItemName</dt>
+            <dd class="col-sm-10">@recepit.ItemName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Supplyer</dt>
+            <dd class="col-sm-10">@recepit.Supplyer</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Address</dt>
+            <dd class="col-sm-10">@recepit.Address</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ContactNo</dt>
+            <dd class="col-sm-10">@recepit.ContactNo</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">IvoiceNo</dt>
+            <dd class="col-sm-10">@recepit.IvoiceNo</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">PaymentMethod</dt>
+            <dd class="col-sm-10">@recepit.PaymentMethod</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UrlDocName</dt>
+            <dd class="col-sm-10">@recepit.UrlDocName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Quantity</dt>
+            <dd class="col-sm-10">@recepit.Quantity</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Amount</dt>
+            <dd class="col-sm-10">@recepit.Amount</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">RecepitDate</dt>
+            <dd class="col-sm-10">@recepit.RecepitDate</dd>
+        </dl>
+        <EditForm method="post" Model="recepit" OnValidSubmit="DeleteRecepit" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(recepit is null)">Delete</button> |
+            <a href="/recepits">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Recepit? recepit;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        recepit = await context.recepits.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (recepit is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteRecepit()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.recepits.Remove(recepit!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/recepits");
+    }
+}

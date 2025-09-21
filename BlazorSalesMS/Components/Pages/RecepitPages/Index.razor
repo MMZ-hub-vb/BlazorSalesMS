@@ -1,0 +1,45 @@
+﻿@page "/recepits"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorSalesMS.Data
+@using BlazorSalesMS.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="recepits/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.recepits">
+    <PropertyColumn Property="recepit => recepit.ItemName" />
+    <PropertyColumn Property="recepit => recepit.Supplyer" />
+    <PropertyColumn Property="recepit => recepit.Address" />
+    <PropertyColumn Property="recepit => recepit.ContactNo" />
+    <PropertyColumn Property="recepit => recepit.IvoiceNo" />
+    <PropertyColumn Property="recepit => recepit.PaymentMethod" />
+    <PropertyColumn Property="recepit => recepit.UrlDocName" />
+    <PropertyColumn Property="recepit => recepit.Quantity" />
+    <PropertyColumn Property="recepit => recepit.Amount" />
+    <PropertyColumn Property="recepit => recepit.RecepitDate" />
+
+    <TemplateColumn Context="recepit">
+        <a href="@($"recepits/edit?id={recepit.Id}")">Edit</a> |
+        <a href="@($"recepits/details?id={recepit.Id}")">Details</a> |
+        <a href="@($"recepits/delete?id={recepit.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

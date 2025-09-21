@@ -8,6 +8,7 @@ namespace BlazorSalesMS.Data
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Unit> Unit { get; set; }
+        public DbSet<Recepit> recepits { get; set; }
     }
      
  }

@@ -1,0 +1,134 @@
+﻿@page "/recepits/edit"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Recepit</h2>
+<hr />
+@if (Recepit is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Recepit" OnValidSubmit="UpdateRecepit" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Recepit.Id" value="@Recepit.Id" />
+                <div class="mb-3">
+                    <label for="itemname" class="form-label">ItemName:</label>
+                    <InputText id="itemname" @bind-Value="Recepit.ItemName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.ItemName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="supplyer" class="form-label">Supplyer:</label>
+                    <InputText id="supplyer" @bind-Value="Recepit.Supplyer" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.Supplyer" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address:</label>
+                    <InputText id="address" @bind-Value="Recepit.Address" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.Address" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="contactno" class="form-label">ContactNo:</label>
+                    <InputText id="contactno" @bind-Value="Recepit.ContactNo" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.ContactNo" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="ivoiceno" class="form-label">IvoiceNo:</label>
+                    <InputText id="ivoiceno" @bind-Value="Recepit.IvoiceNo" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.IvoiceNo" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="paymentmethod" class="form-label">PaymentMethod:</label>
+                    <InputText id="paymentmethod" @bind-Value="Recepit.PaymentMethod" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.PaymentMethod" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="urldocname" class="form-label">UrlDocName:</label>
+                    <InputText id="urldocname" @bind-Value="Recepit.UrlDocName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.UrlDocName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <InputNumber id="quantity" @bind-Value="Recepit.Quantity" class="form-control" />
+                    <ValidationMessage For="() => Recepit.Quantity" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount:</label>
+                    <InputNumber id="amount" @bind-Value="Recepit.Amount" class="form-control" />
+                    <ValidationMessage For="() => Recepit.Amount" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="recepitdate" class="form-label">RecepitDate:</label>
+                    <InputDate id="recepitdate" @bind-Value="Recepit.RecepitDate" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Recepit.RecepitDate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/recepits">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Recepit? Recepit { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Recepit ??= await context.recepits.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Recepit is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateRecepit()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Recepit!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!RecepitExists(Recepit!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/recepits");
+    }
+
+    private bool RecepitExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.recepits.Any(e => e.Id == id);
+    }
+}

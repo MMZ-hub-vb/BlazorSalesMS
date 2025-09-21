@@ -3,16 +3,17 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
-@rendermode InteractiveServer
 <PageTitle>Index</PageTitle>
 
-<h1>Index</h1>
+<h1>Inventory</h1>
 
 <p>
     <a href="inventories/create">Create New</a>
 </p>
-<div class="mb-3">
+<div class="mb-6">
     <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="search name"  style="width:200px" />
+    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:limegreen">|Sort by Alphabet |</a>
+    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:limegreen">Sort by Qty |</a>
 </div>
 <QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped">
    
@@ -27,9 +28,9 @@
     <PropertyColumn Property="inventory => inventory.LastUpdatePriceDate" />
 
     <TemplateColumn Context="inventory">
+        <a href="@($"/recepits/create?name={inventory.ItemName}")">Recepit</a> |
         <a href="@($"inventories/edit?id={inventory.Id}")">Edit</a> |
         <a href="@($"inventories/details?id={inventory.Id}")">Details</a> |
-        <a href="@($"inventories/delete?id={inventory.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
@@ -41,16 +42,16 @@
          string.IsNullOrWhiteSpace(search)
              ? inventories
              : inventories.Where(i =>
-                 i.ItemName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+                 i.ItemName.Contains(search, StringComparison.OrdinalIgnoreCase) || i.Category.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
         inventories = context.Inventories.ToList();
     }
-    void SearchItem()
+    void Sortbyalphabet()
     {
         context = DbFactory.CreateDbContext();
-        inventories = context.Inventories.Where(i => i.ItemName.Contains(search)).ToList();
+        inventories = context.Inventories.OrderBy(x=>x.ItemName).ToList();
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
