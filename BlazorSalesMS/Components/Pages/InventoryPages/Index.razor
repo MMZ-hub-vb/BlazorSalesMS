@@ -3,29 +3,29 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
-<PageTitle>Index</PageTitle>
+@rendermode InteractiveServer
+<PageTitle>Iventory</PageTitle>
 
-<h1>Inventory</h1>
+<h2>Inventory</h2>
 
 <p>
     <a href="inventories/create">Create New</a>
 </p>
 <div class="mb-6">
-    <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="search name"  style="width:200px" />
-    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:limegreen">|Sort by Alphabet |</a>
-    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:limegreen">Sort by Qty |</a>
+    <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category"  style="width:220px" />
+    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Alphabet |</a>
+    <a @onclick="SortbyQty" style="cursor:pointer;color:darkblue">Sort by Qty |</a>
 </div>
 <QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped">
    
-    <PropertyColumn Property="inventory => inventory.ItemName" />
-    <PropertyColumn Property="inventory => inventory.Quantity" />
-    <PropertyColumn Property="inventory => inventory.QuantityOH" />
+    <PropertyColumn Property="inventory => inventory.ItemName" Title="Item"/>
+    <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" />
     <PropertyColumn Property="inventory => inventory.Unit" />
     <PropertyColumn Property="inventory => inventory.Category" />
-    <PropertyColumn Property="inventory => inventory.PdnPrice" />
-    <PropertyColumn Property="inventory => inventory.SalesPrice" />
-    <PropertyColumn Property="inventory => inventory.LastUpdateQtyDate" />
-    <PropertyColumn Property="inventory => inventory.LastUpdatePriceDate" />
+    <PropertyColumn Property="inventory => inventory.PdnPrice" Title="Costing Price"/>
+    <PropertyColumn Property="inventory => inventory.SalesPrice" Title="Sales Price"/>
+    <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" />
+    <PropertyColumn Property="inventory => inventory.LastUpdatePriceDate.ToShortDateString()" Title="Last Price Qty" />
 
     <TemplateColumn Context="inventory">
         <a href="@($"/recepits/create?name={inventory.ItemName}")">Recepit</a> |
@@ -52,6 +52,11 @@
     {
         context = DbFactory.CreateDbContext();
         inventories = context.Inventories.OrderBy(x=>x.ItemName).ToList();
+    }
+    void SortbyQty()
+    {
+        context = DbFactory.CreateDbContext();
+        inventories = context.Inventories.OrderBy(x => x.QuantityOH).ToList();
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

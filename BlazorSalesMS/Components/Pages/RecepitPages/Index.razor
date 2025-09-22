@@ -14,14 +14,13 @@
     <a href="recepits/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.recepits">
-    <PropertyColumn Property="recepit => recepit.ItemName" />
+<QuickGrid Class="table table-striped" Items="context.recepits">
+    <PropertyColumn Property="recepit => recepit.ItemName" Title="Item"/>
     <PropertyColumn Property="recepit => recepit.Supplyer" />
     <PropertyColumn Property="recepit => recepit.Address" />
-    <PropertyColumn Property="recepit => recepit.ContactNo" />
-    <PropertyColumn Property="recepit => recepit.IvoiceNo" />
-    <PropertyColumn Property="recepit => recepit.PaymentMethod" />
-    <PropertyColumn Property="recepit => recepit.UrlDocName" />
+    <PropertyColumn Property="recepit => recepit.ContactNo" Title="Contact" />
+    <PropertyColumn Property="recepit => recepit.IvoiceNo" Title="Invoice" />
+    <PropertyColumn Property="recepit => recepit.PaymentMethod" Title="Method" />
     <PropertyColumn Property="recepit => recepit.Quantity" />
     <PropertyColumn Property="recepit => recepit.Amount" />
     <PropertyColumn Property="recepit => recepit.RecepitDate" />

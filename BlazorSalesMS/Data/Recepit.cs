@@ -18,8 +18,9 @@ namespace BlazorSalesMS.Data
         [StringLength(150, ErrorMessage = "Address cannot exceed 150 characters.")]
         public string Address { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Contact no is required.")]
-        [StringLength(12, ErrorMessage = "Contact no cannot exceed 12 characters.")]
+        [Required(ErrorMessage = "Phone number is required.")]
+        [RegularExpression(@"^\+?[0-9]\d{7,12}$",
+        ErrorMessage = "Enter a valid phone number (e.g., 0123456789132).")]
         public string ContactNo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Invoice no is required.")]

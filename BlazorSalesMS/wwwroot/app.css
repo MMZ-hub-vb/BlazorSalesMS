@@ -1,5 +1,6 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Book Antiqua';
+    font-size:18px
 }
 
 a, .btn-link {
@@ -78,4 +79,16 @@ h1:focus {
 ::placeholder {
     color: #6c757d; /* Optional: style placeholder */
     opacity: 1;
+}
+/* wwwroot/css/site.css */
+.zoomable {
+    transition: transform 0.3s ease-in-out;
+    cursor: zoom-in;
+}
+
+.zoomed {
+    transform: scale(2); /* Zoom factor */
+    cursor: zoom-out;
+    z-index: 1000;
+    position: relative;
 }
