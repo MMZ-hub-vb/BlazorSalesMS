@@ -3,7 +3,7 @@
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
-
+@rendermode InteractiveServer
 <PageTitle>Create</PageTitle>
 
 <h1>Create</h1>
@@ -15,7 +15,7 @@
     <div class="col-md-4">
       
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+           
             <div class="mb-3">
                 <label for="itemname" class="form-label">Item Name:</label> 
                 <InputText id="itemname" @bind-Value="Inventory.ItemName" class="underline-only" aria-required="true" />
@@ -48,7 +48,7 @@
             
             <div class="mb-3">
                 <label for="category" class="form-label">Category:</label>
-                <a class="btn btn-success btn-sm" href="/categories/create">Add Catagory</a>
+                <button type="button" class="btn btn-success btn-sm" @onclick="ShowPopup">Add Catagory</button>
                 <InputSelect @bind-Value="Inventory.Category" class="underline-only">
                     <option value="">--Select Category--</option>
                     @foreach (var cata in categories)
@@ -81,10 +81,45 @@
 <div>
     <a href="/inventories">Back to List</a>
 </div>
+@if (IsPopupVisible)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Create Category</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopup">Closed</div>
 
+                </div>
+                <div class="model-body">
+                    <div class="row" style="margin-left:10px">
+                        <div class="col-md-4">
+                            <EditForm method="post" Model="Category" OnValidSubmit="AddCategory"  Enhance>
+                                <DataAnnotationsValidator />
+                                <div class="mb-3 underline-input">
+                                    <label for="categoryname" class="form-label">Category Name:</label>
+                                    <InputText id="categoryname" @bind-Value="Category.CategoryName" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <InputText id="description" @bind-Value="Category.Description" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.Description" class="text-danger" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
 @code {
     [SupplyParameterFromForm]
     private Inventory Inventory { get; set; } = new();
+    private Category Category { get; set; } = new();
     private List<Category>categories=new List<Category>();
     private List<Unit> units = new List<Unit>();
     private ApplicationDbContext context = default!;
@@ -104,4 +139,17 @@
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/inventories");
     }
+    private async Task AddCategory()
+    {
+       // sping = true;
+        using var context = DbFactory.CreateDbContext();
+        context.Categories.Add(Category);
+        await context.SaveChangesAsync();
+        IsPopupVisible = false;
+        NavigationManager.NavigateTo("/inventories/create",true);
+    }
+    private bool IsPopupVisible = false;
+
+    private void ShowPopup() => IsPopupVisible = true;
+    private void ClosePopup() => IsPopupVisible = false;
 }

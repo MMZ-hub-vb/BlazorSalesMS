@@ -70,7 +70,7 @@ h1:focus {
     color: #212529; /* Text color */
     outline: none; /* Remove focus outline */
 }
-
+    /*Input textbox underline */
 .underline-only:focus {
     border-bottom-color: #6610f2; /* Change underline color on focus */
     box-shadow: none; /* No box shadow */
@@ -80,7 +80,7 @@ h1:focus {
     color: #6c757d; /* Optional: style placeholder */
     opacity: 1;
 }
-/* wwwroot/css/site.css */
+/*ZoominOut */
 .zoomable {
     transition: transform 0.3s ease-in-out;
     cursor: zoom-in;
