@@ -1,0 +1,211 @@
+﻿@page "/products/create"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Product</h2>
+<hr />
+<EditForm method="post" Model="Product" OnValidSubmit="AddProduct" FormName="create" Enhance>
+
+<div class="row">
+    <div class="col-md-4">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="itemname" class="form-label">ItemName:</label> 
+                <input  @bind="Product.ItemName" class="underline-only" /> 
+                <ValidationMessage For="() => Product.ItemName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="sku" class="form-label">SKU:</label> 
+                <input @bind="Product.SKU" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Product.SKU" class="text-danger" /> 
+            </div>
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit:</label>
+                <button type="button" class="btn btn-warning btn-sm" @onclick="ShowPopupUnit">Add Unit</button>
+                <select @bind="Product.Unit" class="underline-only">
+                    <option value="">--Select Unit--</option>
+                    @foreach (var unit in units)
+                    {
+                        <option value="@unit.UnitName">@unit.UnitName</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category:</label>
+                <button type="button" class="btn btn-success btn-sm" @onclick="ShowPopupCategory">Add Catagory</button>
+                <select @bind="Product.Category" class="underline-only">
+                    <option value="">--Select Category--</option>
+                    @foreach (var cata in categories)
+                    {
+                        <option value="@cata.CategoryName">@cata.CategoryName</option>
+                    }
+                </select>
+            </div>
+            </div>
+                <div class="col-md-4">
+            <div class="mb-3">
+                <label for="pdnprice" class="form-label">Costing Price:</label> 
+                <input type="number" @bind="Product.PdnPrice" class="underline-only" />
+                <ValidationMessage For="() => Product.PdnPrice" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="salesprice" class="form-label">Sales Price:</label> 
+                <input type="number" @bind="Product.SalesPrice" class="underline-only" />
+                <ValidationMessage For="() => Product.SalesPrice" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastupdatedate" class="form-label">Last Update Date:</label>
+                <input type="date" @bind="Product.LastUpdateDate" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Product.LastUpdateDate" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="expirationdate" class="form-label">Expiration Date:</label> 
+                <input type="date" @bind="Product.ExpirationDate" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Product.ExpirationDate" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</div>
+</EditForm>
+<div>
+    <a href="/products">Back to List</a>
+</div>
+@if (IsPopupVisible)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Create Category</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopupCategory">Closed</div>
+
+                </div>
+                <div class="model-body">
+                    <div class="row" style="margin-left:10px">
+                        <div class="col-md-4">
+                            <EditForm method="post" Model="Category" OnValidSubmit="AddCategory" Enhance>
+                                <DataAnnotationsValidator />
+                                <div class="mb-3 underline-input">
+                                    <label for="categoryname" class="form-label">Category Name:</label>
+                                    <input type="tel" @bind="Category.CategoryName" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <input type="text" @bind="Category.Description" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.Description" class="text-danger" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
+@if (IsPopupVisible2)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Create Unity</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopupUnit">Closed</div>
+
+                </div>
+                <div class="model-body">
+                    <div class="row" style="margin-left:10px">
+                        <div class="col-md-4">
+                            <EditForm method="post" Model="unit" OnValidSubmit="AddUnit" Enhance>
+                                <DataAnnotationsValidator />
+                                <div class="mb-3 underline-input">
+                                    <label for="categoryname" class="form-label">Unit Name:</label>
+                                    <input type="text" @bind="unit.UnitName" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => unit.UnitName" class="text-danger" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <input type="text" @bind="unit.Description" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => unit.Description" class="text-danger" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [SupplyParameterFromForm]
+    private Product Product { get; set; } = new();
+    private Inventory Inventory { get; set; } = new();
+    private Category Category { get; set; } = new();
+    private List<Category> categories = new List<Category>();
+    private List<Unit> units = new List<Unit>();
+    private Unit unit = new Unit();
+    private ApplicationDbContext context = default!;
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+        categories = context.Categories.ToList();
+        units = context.Unit.ToList();
+    }
+    private async Task AddProduct()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.product.Add(Product);
+        await context.SaveChangesAsync();
+
+        Inventory.PId = Product.Id;
+        Inventory.ItemName = Product.ItemName;
+        Inventory.SKU = Product.SKU;
+        Inventory.QuantityOH =0;
+        Inventory.Unit = Product.Unit;
+        Inventory.Category = Product.Category;
+        Inventory.PdnPrice = Product.PdnPrice;
+        Inventory.SalesPrice = Product.SalesPrice;
+        Inventory.ExpirationDate = Product.ExpirationDate;
+        Inventory.LastUpdateQtyDate = DateTime.Now.Date;
+        using var context2 = DbFactory.CreateDbContext();
+        context2.Inventories.Add(Inventory);
+        await context2.SaveChangesAsync();
+        NavigationManager.NavigateTo("/products");
+    }
+    private async Task AddCategory()
+    {
+        // sping = true;
+        using var context = DbFactory.CreateDbContext();
+        context.Categories.Add(Category);
+        await context.SaveChangesAsync();
+        IsPopupVisible = false;
+        NavigationManager.NavigateTo("/products/create", true);
+    }
+    private async Task AddUnit()
+    {
+        // sping = true;
+        using var context = DbFactory.CreateDbContext();
+        context.Unit.Add(unit);
+        await context.SaveChangesAsync();
+        IsPopupVisible2 = false;
+        NavigationManager.NavigateTo("/products/create", true);
+    }
+    private bool IsPopupVisible = false;
+    private bool IsPopupVisible2 = false;
+    private void ShowPopupCategory() => IsPopupVisible = true;
+    private void ClosePopupCategory() => IsPopupVisible = false;
+
+    private void ShowPopupUnit() => IsPopupVisible2 = true;
+    private void ClosePopupUnit() => IsPopupVisible2 = false;
+}

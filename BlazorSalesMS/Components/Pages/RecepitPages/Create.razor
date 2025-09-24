@@ -51,7 +51,7 @@
             </div>        
            
             <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity:</label> 
+                <label for="quantity" class="form-label">Quantity:@inventory.QuantityOH</label> 
                 <InputNumber id="quantity" @bind-Value="Recepit.Quantity" class="underline-only" />
                 <ValidationMessage For="() => Recepit.Quantity" class="text-danger" /> 
             </div>        
@@ -87,7 +87,52 @@
 <div>
     <a href="/recepits">Back to List</a>
 </div>
-
+@if (IsPopupVisible)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Caculation</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopup">Closed</div>
+                </div>
+                <div class="model-body">
+                 <table class="table">
+                     <tr>
+                         <td>Existing QH:</td>
+                         <td>@inventory.QuantityOH</td>
+                         <td>Costing Price:</td>
+                         <td>@inventory.PdnPrice</td>
+                         </tr>
+                         <tr>
+                            <td>Sales Price:</td>
+                            <td>@inventory.SalesPrice</td>
+                            <td>Total QH:</td>
+                            <td>@(inventory.QuantityOH+Recepit.Quantity)</td>
+                            </tr >
+                            <tr>
+                           
+                            <td>New Quantity:</td>
+                            <td>@Recepit.Quantity:</td>
+                            <td>Total Buing Cost:</td>
+                            <td>@Recepit.Amount</td>
+                        </tr>
+                 </table>
+                    
+                </div>
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity:@inventory.QuantityOH</label>
+                    <input type="number" id="quantity" class="underline-only" />
+                </div>
+                <div>
+                    <button>Yes</button>
+                    <button>No</button>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
 @code {
 
     [SupplyParameterFromQuery]
@@ -96,28 +141,64 @@
     [SupplyParameterFromForm]
     private Recepit Recepit { get; set; } = new();
     private Inventory inventory { get; set; } = new();
-
+    private Product product { get; set; } = new();
     private string status = "";
+    private string btnSendCmd = "";
     private string savedFileName = "";
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
         inventory =await context.Inventories.Where(x => x.ItemName == name).FirstOrDefaultAsync();
+        using var context2 = DbFactory.CreateDbContext();
+        product= await context.product.Where(x => x.ItemName == name).FirstOrDefaultAsync();
+    }
+    private bool IsPopupVisible = false;
+    private void ClosePopup() => IsPopupVisible = false;
+
+    private async Task BtnCalculatePopUp()
+    {
+        IsPopupVisible = true;
+        Recepit.ItemName = name;
+
+
     }
     private async Task AddRecepit()
     {
+        IsPopupVisible = true;
+
         Recepit.ItemName = name;
-       // inventory.QuantityOH += Recepit.Quantity;
-        using var context = DbFactory.CreateDbContext();
-        using var context2 = DbFactory.CreateDbContext();
-        await context2.Database.ExecuteSqlRawAsync(
-    "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1},LastUpdatePriceDate={2},LastUpdateQtyDate={3} WHERE ItemName = {4}",
-    Recepit.Quantity, Recepit.Amount, Recepit.RecepitDate, Recepit.RecepitDate, name);
-        context.recepits.Add(Recepit);
-        await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/recepits");
-  
+        if(btnSendCmd=="Yes")
+        {
+            IsPopupVisible = false; ;
+        }
+        if (btnSendCmd == "No")
+        {
+            // inventory.QuantityOH += Recepit.Quantity;
+            using var context = DbFactory.CreateDbContext();
+            using var context2 = DbFactory.CreateDbContext();
+            using var context3 = DbFactory.CreateDbContext();
+            await context2.Database.ExecuteSqlRawAsync(
+       "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1}/{0}+SalesPrice,LastUpdateQtyDate={2} WHERE ItemName = {3}",
+        Recepit.Quantity, Recepit.Amount, Recepit.RecepitDate, name);
+
+            await context3.Database.ExecuteSqlRawAsync(
+           "UPDATE product SET SalesPrice = {0}/{1} WHERE ItemName = {2}",
+           Recepit.Amount, Recepit.Quantity, name);
+            context.recepits.Add(Recepit);
+            await context.SaveChangesAsync();
+            //NavigationManager.NavigateTo("/recepits");
+            NavigationManager.NavigateTo("/inventories", true);
+        }
+        
+    }
+    void clickYes()
+    {
+        btnSendCmd = "Yes";
+    }
+    void clickNo()
+    {
+        btnSendCmd = "No";
     }
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {

@@ -1,4 +1,4 @@
-﻿@page "/inventories/delete"
+﻿@page "/products/delete"
 @using Microsoft.EntityFrameworkCore
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
@@ -10,60 +10,54 @@
 
 <p>Are you sure you want to delete this?</p>
 <div>
-    <h2>Inventory</h2>
+    <h2>Product</h2>
     <hr />
-    @if (inventory is null)
+    @if (product is null)
     {
         <p><em>Loading...</em></p>
     }
     else {
         <dl class="row">
             <dt class="col-sm-2">ItemName</dt>
-            <dd class="col-sm-10">@inventory.ItemName</dd>
+            <dd class="col-sm-10">@product.ItemName</dd>
         </dl>
         <dl class="row">
             <dt class="col-sm-2">SKU</dt>
-            <dd class="col-sm-10">@inventory.SKU</dd>
-        </dl>
-       
-        <dl class="row">
-            <dt class="col-sm-2">QuantityOH</dt>
-            <dd class="col-sm-10">@inventory.QuantityOH</dd>
+            <dd class="col-sm-10">@product.SKU</dd>
         </dl>
         <dl class="row">
             <dt class="col-sm-2">Unit</dt>
-            <dd class="col-sm-10">@inventory.Unit</dd>
+            <dd class="col-sm-10">@product.Unit</dd>
         </dl>
         <dl class="row">
             <dt class="col-sm-2">Category</dt>
-            <dd class="col-sm-10">@inventory.Category</dd>
+            <dd class="col-sm-10">@product.Category</dd>
         </dl>
         <dl class="row">
             <dt class="col-sm-2">PdnPrice</dt>
-            <dd class="col-sm-10">@inventory.PdnPrice</dd>
+            <dd class="col-sm-10">@product.PdnPrice</dd>
         </dl>
         <dl class="row">
             <dt class="col-sm-2">SalesPrice</dt>
-            <dd class="col-sm-10">@inventory.SalesPrice</dd>
+            <dd class="col-sm-10">@product.SalesPrice</dd>
         </dl>
         <dl class="row">
-            <dt class="col-sm-2">LastUpdateQtyDate</dt>
-            <dd class="col-sm-10">@inventory.LastUpdateQtyDate</dd>
+            <dt class="col-sm-2">LastUpdateDate</dt>
+            <dd class="col-sm-10">@product.LastUpdateDate</dd>
         </dl>
-     
         <dl class="row">
             <dt class="col-sm-2">ExpirationDate</dt>
-            <dd class="col-sm-10">@inventory.ExpirationDate</dd>
+            <dd class="col-sm-10">@product.ExpirationDate</dd>
         </dl>
-        <EditForm method="post" Model="inventory" OnValidSubmit="DeleteInventory" FormName="delete" Enhance>
-            <button type="submit" class="btn btn-danger" disabled="@(inventory is null)">Delete</button> |
-            <a href="/inventories">Back to List</a>
+        <EditForm method="post" Model="product" OnValidSubmit="DeleteProduct" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(product is null)">Delete</button> |
+            <a href="/products">Back to List</a>
         </EditForm>
     }
 </div>
 
 @code {
-    private Inventory? inventory;
+    private Product? product;
 
     [SupplyParameterFromQuery]
     private int Id { get; set; }
@@ -71,19 +65,19 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        inventory = await context.Inventories.FirstOrDefaultAsync(m => m.Id == Id);
+        product = await context.product.FirstOrDefaultAsync(m => m.Id == Id);
 
-        if (inventory is null)
+        if (product is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
     }
 
-    private async Task DeleteInventory()
+    private async Task DeleteProduct()
     {
         using var context = DbFactory.CreateDbContext();
-        context.Inventories.Remove(inventory!);
+        context.product.Remove(product!);
         await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/inventories");
+        NavigationManager.NavigateTo("/products");
     }
 }

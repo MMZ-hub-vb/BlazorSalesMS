@@ -133,7 +133,6 @@
     {
         using var context = DbFactory.CreateDbContext();
         Inventory.LastUpdateQtyDate = DateTime.Now.Date;
-        Inventory.LastUpdatePriceDate = DateTime.Now.Date;
     
         context.Inventories.Add(Inventory);
         await context.SaveChangesAsync();

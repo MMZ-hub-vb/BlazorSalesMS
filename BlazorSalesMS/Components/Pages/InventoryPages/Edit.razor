@@ -32,11 +32,7 @@ else
                     <InputText id="sku" @bind-Value="Inventory.SKU" class="form-control" aria-required="true"/>
                     <ValidationMessage For="() => Inventory.SKU" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity:</label>
-                    <InputNumber id="quantity" @bind-Value="Inventory.Quantity" class="form-control" />
-                    <ValidationMessage For="() => Inventory.Quantity" class="text-danger" />
-                </div>
+                
                 <div class="mb-3">
                     <label for="quantityoh" class="form-label">QuantityOH:</label>
                     <InputNumber id="quantityoh" @bind-Value="Inventory.QuantityOH" class="form-control" />
@@ -67,11 +63,7 @@ else
                     <InputDate id="lastupdateqtydate" @bind-Value="Inventory.LastUpdateQtyDate" class="form-control" aria-required="true"/>
                     <ValidationMessage For="() => Inventory.LastUpdateQtyDate" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="lastupdatepricedate" class="form-label">LastUpdatePriceDate:</label>
-                    <InputDate id="lastupdatepricedate" @bind-Value="Inventory.LastUpdatePriceDate" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Inventory.LastUpdatePriceDate" class="text-danger" />
-                </div>
+               
                 <div class="mb-3">
                     <label for="expirationdate" class="form-label">ExpirationDate:</label>
                     <InputDate id="expirationdate" @bind-Value="Inventory.ExpirationDate" class="form-control" aria-required="true"/>

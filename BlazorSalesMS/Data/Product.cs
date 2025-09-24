@@ -2,10 +2,9 @@
 
 namespace BlazorSalesMS.Data
 {
-    public class Inventory
+    public class Product
     {
         public int Id { get; set; }
-        public int PId { get; set; }
 
         [Required(ErrorMessage = "Item name is required.")]
         [StringLength(100, ErrorMessage = "Item name cannot exceed 100 characters.")]
@@ -14,9 +13,6 @@ namespace BlazorSalesMS.Data
         [Required(ErrorMessage = "SKU is required.")]
         [StringLength(50, ErrorMessage = "SKU cannot exceed 50 characters.")]
         public string SKU { get; set; } = string.Empty;
-
-        [Range(0, int.MaxValue, ErrorMessage = "Quantity on hand must be a non-negative number.")]
-        public int QuantityOH { get; set; }
 
         [Required(ErrorMessage = "Unit is required.")]
         [StringLength(10, ErrorMessage = "Unit cannot exceed 10 characters.")]
@@ -33,9 +29,9 @@ namespace BlazorSalesMS.Data
         public decimal SalesPrice { get; set; }
 
         [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Expiration date is required.")]
-        public DateTime LastUpdateQtyDate { get; set; } = DateTime.Now.Date;
-       
+        [Required(ErrorMessage = "Last Update date is required.")]
+        public DateTime LastUpdateDate { get; set; } = DateTime.Now.Date;
+
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "Expiration date is required.")]
         public DateTime ExpirationDate { get; set; } = DateTime.Now.Date;

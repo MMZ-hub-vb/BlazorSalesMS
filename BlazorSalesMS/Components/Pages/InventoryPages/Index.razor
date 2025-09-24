@@ -6,7 +6,7 @@
 @rendermode InteractiveServer
 <PageTitle>Iventory</PageTitle>
 
-<h2>Inventory</h2>
+<h2>Inventory List</h2>
 
 <p>
     <a href="inventories/create">Create New</a>
@@ -22,10 +22,9 @@
     <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" />
     <PropertyColumn Property="inventory => inventory.Unit" />
     <PropertyColumn Property="inventory => inventory.Category" />
-    <PropertyColumn Property="inventory => inventory.PdnPrice" Title="Costing Price"/>
-    <PropertyColumn Property="inventory => inventory.SalesPrice" Title="Sales Price"/>
+    <PropertyColumn Property="@(inventory => inventory.PdnPrice.ToString("N2"))" Title="Costing Price" />
+    <PropertyColumn Property="@(inventory => inventory.SalesPrice.ToString("N2"))" Title="Sales Price" />
     <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" />
-    <PropertyColumn Property="inventory => inventory.LastUpdatePriceDate.ToShortDateString()" Title="Last Price Qty" />
 
     <TemplateColumn Context="inventory">
         <a href="@($"/recepits/create?name={inventory.ItemName}")">Recepit</a> |
