@@ -1,0 +1,58 @@
+﻿@page "/distributors/details"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Distributor</h2>
+    <hr />
+    @if (distributor is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Code</dt>
+            <dd class="col-sm-10">@distributor.Code</dd>
+            <dt class="col-sm-2">DocUrl1</dt>
+            <dd class="col-sm-10">@distributor.DocUrl1</dd>
+            <dt class="col-sm-2">DocUrl12</dt>
+            <dd class="col-sm-10">@distributor.DocUrl12</dd>
+            <dt class="col-sm-2">CompanyName</dt>
+            <dd class="col-sm-10">@distributor.CompanyName</dd>
+            <dt class="col-sm-2">PersonName</dt>
+            <dd class="col-sm-10">@distributor.PersonName</dd>
+            <dt class="col-sm-2">Address</dt>
+            <dd class="col-sm-10">@distributor.Address</dd>
+            <dt class="col-sm-2">Contact</dt>
+            <dd class="col-sm-10">@distributor.Contact</dd>
+        </dl>
+        <div>
+            <a href="@($"/distributors/edit?id={distributor.Id}")">Edit</a> |
+            <a href="@($"/distributors")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Distributor? distributor;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        distributor = await context.distributors.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (distributor is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

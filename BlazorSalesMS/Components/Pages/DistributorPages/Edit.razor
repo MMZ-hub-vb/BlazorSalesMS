@@ -1,0 +1,119 @@
+﻿@page "/distributors/edit"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Distributor</h2>
+<hr />
+@if (Distributor is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Distributor" OnValidSubmit="UpdateDistributor" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Distributor.Id" value="@Distributor.Id" />
+                <div class="mb-3">
+                    <label for="code" class="form-label">Code:</label>
+                    <InputText id="code" @bind-Value="Distributor.Code" class="form-control" />
+                    <ValidationMessage For="() => Distributor.Code" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="docurl1" class="form-label">DocUrl1:</label>
+                    <InputText id="docurl1" @bind-Value="Distributor.DocUrl1" class="form-control" />
+                    <ValidationMessage For="() => Distributor.DocUrl1" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="docurl12" class="form-label">DocUrl12:</label>
+                    <InputText id="docurl12" @bind-Value="Distributor.DocUrl12" class="form-control" />
+                    <ValidationMessage For="() => Distributor.DocUrl12" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="companyname" class="form-label">CompanyName:</label>
+                    <InputText id="companyname" @bind-Value="Distributor.CompanyName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Distributor.CompanyName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="personname" class="form-label">PersonName:</label>
+                    <InputText id="personname" @bind-Value="Distributor.PersonName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Distributor.PersonName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address:</label>
+                    <InputText id="address" @bind-Value="Distributor.Address" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Distributor.Address" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="contact" class="form-label">Contact:</label>
+                    <InputText id="contact" @bind-Value="Distributor.Contact" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Distributor.Contact" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/distributors">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Distributor? Distributor { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Distributor ??= await context.distributors.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Distributor is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateDistributor()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Distributor!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!DistributorExists(Distributor!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/distributors");
+    }
+
+    private bool DistributorExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.distributors.Any(e => e.Id == id);
+    }
+}

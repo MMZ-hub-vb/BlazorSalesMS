@@ -4,7 +4,7 @@
 @using BlazorSalesMS.Data
 @implements IAsyncDisposable
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
-
+@rendermode InteractiveServer
 <PageTitle>Product</PageTitle>
 
 <h1>Product List</h1>
@@ -12,8 +12,13 @@
 <p>
     <a href="products/create">Create New</a>
 </p>
+<div class="mb-6">
+    <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category" style="width:220px" />
+    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Alphabet |</a>
+    <a @onclick="SortbySalesprice" style="cursor:pointer;color:darkblue">Sort by Unit Price |</a>
+</div>
 
-<QuickGrid Class="table-striped" Items="context.product">
+<QuickGrid Items="filteredProducts.AsQueryable()" TGridItem="Product" Class="table table-striped">
     <PropertyColumn Property="product => product.ItemName" />
     <PropertyColumn Property="product => product.SKU" />
     <PropertyColumn Property="product => product.Unit" />
@@ -32,11 +37,27 @@
 
 @code {
     private ApplicationDbContext context = default!;
-
+    private string search = "";
+    private List<Product> products = [];
     protected override void OnInitialized()
     {
         context = DbFactory.CreateDbContext();
+        products = context.product.ToList();
     }
-
+    private IEnumerable<Product> filteredProducts =>
+        string.IsNullOrWhiteSpace(search)
+            ? products
+            : products.Where(i =>
+                i.ItemName.Contains(search, StringComparison.OrdinalIgnoreCase) || i.Category.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    void Sortbyalphabet()
+    {
+        context = DbFactory.CreateDbContext();
+        products = context.product.OrderBy(x => x.ItemName).ToList();
+    }
+    void SortbySalesprice()
+    {
+        context = DbFactory.CreateDbContext();
+       products = context.product.OrderBy(x => x.SalesPrice).ToList();
+    }
 }

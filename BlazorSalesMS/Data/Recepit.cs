@@ -38,7 +38,7 @@ namespace BlazorSalesMS.Data
         public int Quantity { get; set; }
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
-        public decimal Amount { get; set; }
+        public decimal UnitPrice { get; set; }
 
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "Recepit date is required.")]

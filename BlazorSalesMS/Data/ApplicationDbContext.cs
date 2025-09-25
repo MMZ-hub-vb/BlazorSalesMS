@@ -10,6 +10,7 @@ namespace BlazorSalesMS.Data
         public DbSet<Unit> Unit { get; set; }
         public DbSet<Recepit> recepits { get; set; }
         public DbSet<Product> product { get; set; }
+        public DbSet<Distributor> distributors { get; set; }
     }
      
  }

@@ -15,16 +15,16 @@
 <div class="row">
     <div class="col-md-4">
             <DataAnnotationsValidator />
+            <div class="mb-3" style="font-weight:bold;color:red">
+                <label for="sku" class="form-label">SKU:@Product.SKU</label>
+               
+            </div>
             <div class="mb-3">
                 <label for="itemname" class="form-label">ItemName:</label> 
                 <input  @bind="Product.ItemName" class="underline-only" /> 
                 <ValidationMessage For="() => Product.ItemName" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
-                <label for="sku" class="form-label">SKU:</label> 
-                <input @bind="Product.SKU" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Product.SKU" class="text-danger" /> 
-            </div>
+            
             <div class="mb-3">
                 <label for="unit" class="form-label">Unit:</label>
                 <button type="button" class="btn btn-warning btn-sm" @onclick="ShowPopupUnit">Add Unit</button>
@@ -46,6 +46,9 @@
                         <option value="@cata.CategoryName">@cata.CategoryName</option>
                     }
                 </select>
+            </div>
+            <div>
+                <a href="/products">Back to List</a>
             </div>
             </div>
                 <div class="col-md-4">
@@ -73,9 +76,7 @@
     </div>
 </div>
 </EditForm>
-<div>
-    <a href="/products">Back to List</a>
-</div>
+
 @if (IsPopupVisible)
 {
     <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
@@ -154,6 +155,7 @@
     private List<Category> categories = new List<Category>();
     private List<Unit> units = new List<Unit>();
     private Unit unit = new Unit();
+    int LastId;
     private ApplicationDbContext context = default!;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     protected override void OnInitialized()
@@ -161,6 +163,9 @@
         context = DbFactory.CreateDbContext();
         categories = context.Categories.ToList();
         units = context.Unit.ToList();
+        using var contextLastId = DbFactory.CreateDbContext();
+        LastId = contextLastId.product.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+        Product.SKU = "SKU" + LastId;
     }
     private async Task AddProduct()
     {

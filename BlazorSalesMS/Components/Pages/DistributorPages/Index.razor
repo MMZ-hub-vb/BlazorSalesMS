@@ -1,0 +1,41 @@
+﻿@page "/distributors"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorSalesMS.Data
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Distributor List</h1>
+
+<p>
+    <a href="distributors/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.distributors">
+    <PropertyColumn Property="distributor => distributor.Code" />
+    
+    <PropertyColumn Property="distributor => distributor.CompanyName" />
+    <PropertyColumn Property="distributor => distributor.PersonName" />
+    <PropertyColumn Property="distributor => distributor.Address" />
+    <PropertyColumn Property="distributor => distributor.Contact" />
+
+    <TemplateColumn Context="distributor">
+        <a href="@($"distributors/edit?id={distributor.Id}")">Edit</a> |
+        <a href="@($"distributors/details?id={distributor.Id}")">Details</a> |
+        <a href="@($"distributors/delete?id={distributor.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

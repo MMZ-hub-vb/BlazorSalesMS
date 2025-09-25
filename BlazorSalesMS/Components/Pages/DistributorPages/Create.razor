@@ -1,0 +1,127 @@
+﻿@page "/distributors/create"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject IWebHostEnvironment Env
+@rendermode InteractiveServer
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Distributor</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Distributor" OnValidSubmit="AddDistributor" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="code" class="form-label">Code:</label> 
+                <InputText id="code" @bind-Value="Distributor.Code" class="underline-only" /> 
+                <ValidationMessage For="() => Distributor.Code" class="text-danger" /> 
+            </div>        
+            
+            <div class="mb-3">
+                <label for="companyname" class="form-label">CompanyName:</label> 
+                <InputText id="companyname" @bind-Value="Distributor.CompanyName" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Distributor.CompanyName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="personname" class="form-label">PersonName:</label> 
+                <InputText id="personname" @bind-Value="Distributor.PersonName" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Distributor.PersonName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="address" class="form-label">Address:</label> 
+                <InputText id="address" @bind-Value="Distributor.Address" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Distributor.Address" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact:</label> 
+                <InputText id="contact" @bind-Value="Distributor.Contact" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Distributor.Contact" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary" disabled="@IsButtonVisible">Create</button>
+        </EditForm>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <h3>Upload a File</h3>
+
+            <InputFile OnChange="HandleSelected" />
+            <p>@status</p>
+
+            <!-- @if (!string.IsNullOrEmpty(savedFileName))
+                          {
+                     <p>Saved as: <strong>@savedFileName</strong></p>
+                     <img src="@($"/uploads/{savedFileName}")" alt="Uploaded image" style="max-width:200px" />
+             }
+-->
+
+        </div>
+        <div class="mb-3">
+            <h3>Upload a File</h3>
+
+            <InputFile OnChange="HandleSelected" />
+            <p>@status</p>
+
+            <!-- @if (!string.IsNullOrEmpty(savedFileName))
+                                      {
+                                     <p>Saved as: <strong>@savedFileName</strong></p>
+                                     <img src="@($"/uploads/{savedFileName}")" alt="Uploaded image" style="max-width:200px" />
+                         }
+            -->
+
+        </div>
+        </div>
+</div>
+
+<div>
+    <a href="/distributors">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Distributor Distributor { get; set; } = new();
+    private string savedFileName = "";
+    private string status = "";
+    private string status2 = "";
+    private bool IsButtonVisible = true;
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddDistributor()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.distributors.Add(Distributor);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/distributors");
+    }
+    private async Task HandleSelected(InputFileChangeEventArgs e)
+    {
+        status = "Uploading...";
+      
+        try
+        {
+
+            var file = e.File;
+            // Ensure uploads folder exists
+            var uploadPath = Path.Combine(Env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadPath);
+
+            // Use unique name to avoid overwriting
+            savedFileName = $"{Guid.NewGuid()}_{file.Name}";
+            var filePath = Path.Combine(uploadPath, savedFileName);
+            Distributor.DocUrl1 = savedFileName;
+
+            await using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 5); // 5 MB
+            await using var fs = new FileStream(filePath, FileMode.Create);
+            await stream.CopyToAsync(fs);
+
+            status = "Upload complete!";
+            IsButtonVisible = false;
+        }
+        catch (Exception ex)
+        {
+            status = $"Error: {ex.Message}";
+        }
+    }
+}
