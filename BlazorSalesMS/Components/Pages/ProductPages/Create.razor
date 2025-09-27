@@ -185,7 +185,7 @@
         categories = context.Categories.ToList();
         units = context.Unit.ToList();
         using var contextLastId = DbFactory.CreateDbContext();
-        LastId = contextLastId.product.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+        LastId = contextLastId.product.OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault();
         Product.SKU = "SKU" + LastId;
     }
     private async Task AddProduct()

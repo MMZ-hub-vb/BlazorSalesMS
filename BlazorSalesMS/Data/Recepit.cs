@@ -31,7 +31,9 @@ namespace BlazorSalesMS.Data
         [StringLength(14, ErrorMessage = "Method cannot exceed 14 characters.")]
         public string PaymentMethod { get; set; } = string.Empty;
 
-     
+        [Required(ErrorMessage = "Category is required.")]
+        [StringLength(20, ErrorMessage = "Category cannot exceed 20 characters.")]
+        public string Category { get; set; } = string.Empty;
         public string UrlDocName { get; set; } = string.Empty;
 
         [Range(0, int.MaxValue, ErrorMessage = "Quantity must be a non-negative number.")]
