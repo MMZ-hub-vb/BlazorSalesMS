@@ -92,3 +92,7 @@ h1:focus {
     z-index: 1000;
     position: relative;
 }
+/*QuickGrid background color*/
+.my-grid {
+    background-color: #f0f8ff; /* light blue */
+}

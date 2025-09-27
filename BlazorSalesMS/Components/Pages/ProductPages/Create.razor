@@ -47,11 +47,24 @@
                     }
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Sales System:</label>
+                <select @bind="Product.SalesSystem" class="underline-only">
+                    <option value="">--Select Sales System--</option>
+                        <option value="LIFO">LIFO</option>
+                    <option value="FIFO">FIFO</option>
+                </select>
+            </div>
             <div>
                 <a href="/products">Back to List</a>
             </div>
             </div>
                 <div class="col-md-4">
+            <div class="mb-3">
+                <label for="pdnprice" class="form-label">Distributor Price:</label>
+                <input type="number" @bind="Product.DistibutorPrice" class="underline-only" />
+                <ValidationMessage For="() => Product.DistibutorPrice" class="text-danger" />
+            </div>
             <div class="mb-3">
                 <label for="pdnprice" class="form-label">Costing Price:</label> 
                 <input type="number" @bind="Product.PdnPrice" class="underline-only" />
@@ -71,7 +84,15 @@
                 <label for="expirationdate" class="form-label">Expiration Date:</label> 
                 <input type="date" @bind="Product.ExpirationDate" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Product.ExpirationDate" class="text-danger" /> 
-            </div>        
+            </div>  
+            <div class="mb-3">
+                <label for="category" class="form-label">Status:</label>
+                <select @bind="Product.Status" class="underline-only">
+                    <option value="">--Select Status--</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
     </div>
 </div>
@@ -172,7 +193,7 @@
         using var context = DbFactory.CreateDbContext();
         context.product.Add(Product);
         await context.SaveChangesAsync();
-
+        Inventory.SalesSystem = Product.SalesSystem;
         Inventory.PId = Product.Id;
         Inventory.ItemName = Product.ItemName;
         Inventory.SKU = Product.SKU;

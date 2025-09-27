@@ -14,6 +14,16 @@ namespace BlazorSalesMS.Data
         [StringLength(50, ErrorMessage = "SKU cannot exceed 50 characters.")]
         public string SKU { get; set; } = string.Empty;
 
+        
+
+        [Required(ErrorMessage = "Status is required.")]
+        [StringLength(50, ErrorMessage = "SKU cannot exceed 50 characters.")]
+        public string Status { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "sales system is required.")]
+        [StringLength(50, ErrorMessage = "sales system cannot exceed 50 characters.")]
+        public string SalesSystem { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Unit is required.")]
         [StringLength(10, ErrorMessage = "Unit cannot exceed 10 characters.")]
         public string Unit { get; set; } = string.Empty;
@@ -24,6 +34,9 @@ namespace BlazorSalesMS.Data
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
         public decimal PdnPrice { get; set; }
+
+        [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
+        public decimal DistibutorPrice { get; set; }
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
         public decimal SalesPrice { get; set; }

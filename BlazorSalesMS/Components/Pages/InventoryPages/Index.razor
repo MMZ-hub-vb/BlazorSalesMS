@@ -8,26 +8,23 @@
 
 <h2>Inventory List</h2>
 
-<p>
-    <a href="inventories/create">Create New</a>
-</p>
+
 <div class="mb-6">
     <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category"  style="width:220px" />
-    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Alphabet |</a>
-    <a @onclick="SortbyQty" style="cursor:pointer;color:darkblue">Sort by Qty |</a>
+    <a style="color:darkblue">Sort by click any Column |</a>
 </div>
-<QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped">
+<QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped my-grid">
    
-    <PropertyColumn Property="inventory => inventory.ItemName" Title="Item"/>
-    <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" />
-    <PropertyColumn Property="inventory => inventory.Unit" />
-    <PropertyColumn Property="inventory => inventory.Category" />
-    <PropertyColumn Property="@(inventory => inventory.PdnPrice.ToString("N2"))" Title="Costing Price" />
-    <PropertyColumn Property="@(inventory => inventory.SalesPrice.ToString("N2"))" Title="Sales Price" />
-    <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" />
+    <PropertyColumn Property="inventory => inventory.ItemName" Title="Item" Sortable="true"  />
+    <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" Sortable="true" />
+    <PropertyColumn Property="inventory => inventory.Unit" Sortable="true" />
+    <PropertyColumn Property="inventory => inventory.Category" Sortable="true" />
+    <PropertyColumn Property="@(inventory => inventory.PdnPrice.ToString("N2"))" Title="Costing Price" Sortable="true" />
+    <PropertyColumn Property="@(inventory => inventory.SalesPrice.ToString("N2"))" Title="Sales Price" Sortable="true" />
+    <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" Sortable="true" />
 
     <TemplateColumn Context="inventory">
-        <a href="@($"/recepits/create?name={inventory.ItemName}")">Recepit</a> |
+        <a href="@($"/recepits/create?id={inventory.Id}")">Recepit</a> |
         <a href="@($"inventories/edit?id={inventory.Id}")">Edit</a> |
         <a href="@($"inventories/details?id={inventory.Id}")">Details</a> |
     </TemplateColumn>
@@ -37,12 +34,16 @@
     private ApplicationDbContext context = default!;
     private string search = "";
     private List<Inventory> inventories = [];
+
     private IEnumerable<Inventory> filteredInventories =>
          string.IsNullOrWhiteSpace(search)
              ? inventories
              : inventories.Where(i =>
                  i.ItemName.Contains(search, StringComparison.OrdinalIgnoreCase) || i.Category.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
-    protected override async Task OnInitializedAsync()
+   
+                 
+    
+     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
         inventories = context.Inventories.ToList();

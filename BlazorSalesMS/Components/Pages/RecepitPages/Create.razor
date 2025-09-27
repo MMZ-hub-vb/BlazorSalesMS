@@ -137,12 +137,12 @@
 @code {
 
     [SupplyParameterFromQuery]
-    private string name { get; set; }
+    private int id { get; set; }
 
     [SupplyParameterFromForm]
-    private Recepit Recepit { get; set; } = new();
-    private Inventory inventory { get; set; } = new();
-    private Product product { get; set; } = new();
+    private Recepit ? Recepit { get; set; } = new();
+    private Inventory ? inventory { get; set; } = new();
+    private Product ? product { get; set; } = new();
     private string status = "";
     private string MgsCalculation = "";
     private string savedFileName = "";
@@ -151,11 +151,11 @@
     private void ClosePopup() => IsPopupVisible = false;
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        inventory =await context.Inventories.Where(x => x.ItemName == name).FirstOrDefaultAsync();
-        using var context2 = DbFactory.CreateDbContext();
-        product= await context.product.Where(x => x.ItemName == name).FirstOrDefaultAsync();
-        Recepit.ItemName = name;
+            using var context = DbFactory.CreateDbContext();
+            inventory = await context.Inventories.Where(x => x.Id == id).FirstOrDefaultAsync();
+            using var context2 = DbFactory.CreateDbContext();
+            product = await context.product.Where(x => x.Id == id).FirstOrDefaultAsync();
+            Recepit.ItemName = inventory.ItemName;
     }
 
 
@@ -167,7 +167,7 @@
     private async Task BtnCalculatePopUp()
     {
         IsPopupVisible = true;
-        Recepit.ItemName = name;
+        Recepit.ItemName = inventory.ItemName;
 
 
     }
@@ -179,12 +179,12 @@
             using var context2 = DbFactory.CreateDbContext();
             using var context3 = DbFactory.CreateDbContext();
             await context2.Database.ExecuteSqlRawAsync(
-       "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1},LastUpdateQtyDate={2} WHERE ItemName = {3}",
-        Recepit.Quantity, Recepit.UnitPrice, Recepit.RecepitDate, name);
+   "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1},RecepitDate={2},LastUpdateQtyDate={2} WHERE Id = {3}",
+        Recepit.Quantity, Recepit.UnitPrice, Recepit.RecepitDate, inventory.Id);
 
             await context3.Database.ExecuteSqlRawAsync(
-           "UPDATE product SET SalesPrice = {0} WHERE ItemName = {1}",
-           Recepit.UnitPrice, name);
+           "UPDATE product SET SalesPrice = {0} WHERE Id = {1}",
+           Recepit.UnitPrice, id);
          
             context.recepits.Add(Recepit);
             await context.SaveChangesAsync();

@@ -16,29 +16,28 @@
         <EditForm method="post" Model="Distributor" OnValidSubmit="AddDistributor" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <div class="mb-3">
-                <label for="code" class="form-label">Code:</label> 
-                <InputText id="code" @bind-Value="Distributor.Code" class="underline-only" /> 
-                <ValidationMessage For="() => Distributor.Code" class="text-danger" /> 
+                <label for="code" class="form-label" style="color:red">CODE:@Distributor.Code</label>
+                
             </div>        
             
             <div class="mb-3">
                 <label for="companyname" class="form-label">CompanyName:</label> 
-                <InputText id="companyname" @bind-Value="Distributor.CompanyName" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Distributor.CompanyName" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.CompanyName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="personname" class="form-label">PersonName:</label> 
-                <InputText id="personname" @bind-Value="Distributor.PersonName" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Distributor.PersonName" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.PersonName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="address" class="form-label">Address:</label> 
-                <InputText id="address" @bind-Value="Distributor.Address" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Distributor.Address" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.Address" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="contact" class="form-label">Contact:</label> 
-                <InputText id="contact" @bind-Value="Distributor.Contact" class="underline-only" aria-required="true" />
+                <input type="number" @bind="Distributor.Contact" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.Contact" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary" disabled="@IsButtonVisible">Create</button>
@@ -87,7 +86,13 @@
     private string status = "";
     private string status2 = "";
     private bool IsButtonVisible = true;
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    int LastId;
+    protected override void OnInitialized()
+    {
+        using var contextLastId = DbFactory.CreateDbContext();
+        LastId = contextLastId.distributors.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+        Distributor.Code= "DIS" + LastId;
+    }
     private async Task AddDistributor()
     {
         using var context = DbFactory.CreateDbContext();

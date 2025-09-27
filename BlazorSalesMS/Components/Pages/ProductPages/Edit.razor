@@ -3,6 +3,7 @@
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 <PageTitle>Edit</PageTitle>
 
@@ -16,71 +17,184 @@
 }
 else
 {
-    <div class="row">
-        <div class="col-md-4">
-            <EditForm method="post" Model="Product" OnValidSubmit="UpdateProduct" FormName="edit" Enhance>
+    
+       <EditForm method="post" Model="Product" OnValidSubmit="UpdateProduct" FormName="edit" Enhance>
+        <div class="row">
+            <div class="col-md-4">
                 <DataAnnotationsValidator />
-                <ValidationSummary role="alert"/>
-                <input type="hidden" name="Product.Id" value="@Product.Id" />
+                <div class="mb-3" style="font-weight:bold;color:red">
+                    <label for="sku" class="form-label">SKU:@Product.SKU</label>
+
+                </div>
                 <div class="mb-3">
                     <label for="itemname" class="form-label">ItemName:</label>
-                    <InputText id="itemname" @bind-Value="Product.ItemName" class="form-control" aria-required="true"/>
+                    <input @bind="Product.ItemName" class="underline-only" />
                     <ValidationMessage For="() => Product.ItemName" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="sku" class="form-label">SKU:</label>
-                    <InputText id="sku" @bind-Value="Product.SKU" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Product.SKU" class="text-danger" />
-                </div>
+
                 <div class="mb-3">
                     <label for="unit" class="form-label">Unit:</label>
-                    <InputText id="unit" @bind-Value="Product.Unit" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Product.Unit" class="text-danger" />
+                    <button type="button" class="btn btn-warning btn-sm" @onclick="ShowPopupUnit">Add Unit</button>
+                    <select @bind="Product.Unit" class="underline-only">
+                        <option value="">@unit.UnitName</option>
+                        @foreach (var unit in units)
+                        {
+                            <option value="@unit.UnitName">@unit.UnitName</option>
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="category" class="form-label">Category:</label>
-                    <InputText id="category" @bind-Value="Product.Category" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Product.Category" class="text-danger" />
+                    <button type="button" class="btn btn-success btn-sm" @onclick="ShowPopupCategory">Add Catagory</button>
+                    <select @bind="Product.Category" class="underline-only">
+                        <option value="">@Product.Category</option>
+                        @foreach (var cata in categories)
+                        {
+                            <option value="@cata.CategoryName">@cata.CategoryName</option>
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
-                    <label for="pdnprice" class="form-label">PdnPrice:</label>
-                    <InputNumber id="pdnprice" @bind-Value="Product.PdnPrice" class="form-control" />
+                    <label for="category" class="form-label">Sales System:</label>
+                    <select @bind="Product.SalesSystem" class="underline-only">
+                        <option value="">@Product.SalesSystem</option>
+                        <option value="LIFO">LIFO</option>
+                        <option value="FIFO">FIFO</option>
+                    </select>
+                </div>
+                <div>
+                    <a href="/products">Back to List</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="pdnprice" class="form-label">Distributor Price:</label>
+                    <input type="number" @bind="Product.DistibutorPrice" class="underline-only" />
+                    <ValidationMessage For="() => Product.DistibutorPrice" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="pdnprice" class="form-label">Costing Price:</label>
+                    <input type="number" @bind="Product.PdnPrice" class="underline-only" />
                     <ValidationMessage For="() => Product.PdnPrice" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="salesprice" class="form-label">SalesPrice:</label>
-                    <InputNumber id="salesprice" @bind-Value="Product.SalesPrice" class="form-control" />
+                    <label for="salesprice" class="form-label">Sales Price:</label>
+                    <input type="number" @bind="Product.SalesPrice" class="underline-only" />
                     <ValidationMessage For="() => Product.SalesPrice" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="lastupdatedate" class="form-label">LastUpdateDate:</label>
-                    <InputDate id="lastupdatedate" @bind-Value="Product.LastUpdateDate" class="form-control" aria-required="true"/>
+                    <label for="lastupdatedate" class="form-label">Last Update Date:</label>
+                    <input type="date" @bind="Product.LastUpdateDate" class="underline-only" aria-required="true" />
                     <ValidationMessage For="() => Product.LastUpdateDate" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="expirationdate" class="form-label">ExpirationDate:</label>
-                    <InputDate id="expirationdate" @bind-Value="Product.ExpirationDate" class="form-control" aria-required="true"/>
+                    <label for="expirationdate" class="form-label">Expiration Date:</label>
+                    <input type="date" @bind="Product.ExpirationDate" class="underline-only" aria-required="true" />
                     <ValidationMessage For="() => Product.ExpirationDate" class="text-danger" />
                 </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Status:</label>
+                    <select @bind="Product.Status" class="underline-only">
+                        <option value="">--Select Status--</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
                 <button type="submit" class="btn btn-primary">Save</button>
             </EditForm>
-        </div>
-    </div>
+     
 }
 
 <div>
     <a href="/products">Back to List</a>
 </div>
+@if (IsPopupVisible)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Create Category</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopupCategory">Closed</div>
 
+                </div>
+                <div class="model-body">
+                    <div class="row" style="margin-left:10px">
+                        <div class="col-md-4">
+                            <EditForm method="post" Model="Category" OnValidSubmit="AddCategory" Enhance>
+                                <DataAnnotationsValidator />
+                                <div class="mb-3 underline-input">
+                                    <label for="categoryname" class="form-label">Category Name:</label>
+                                    <input type="tel" @bind="Category.CategoryName" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <input type="text" @bind="Category.Description" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => Category.Description" class="text-danger" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
+@if (IsPopupVisible2)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Create Unity</h4>
+                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopupUnit">Closed</div>
+
+                </div>
+                <div class="model-body">
+                    <div class="row" style="margin-left:10px">
+                        <div class="col-md-4">
+                            <EditForm method="post" Model="unit" OnValidSubmit="AddUnit" Enhance>
+                                <DataAnnotationsValidator />
+                                <div class="mb-3 underline-input">
+                                    <label for="categoryname" class="form-label">Unit Name:</label>
+                                    <input type="text" @bind="unit.UnitName" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => unit.UnitName" class="text-danger" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <input type="text" @bind="unit.Description" class="underline-only" aria-required="true" />
+                                    <ValidationMessage For="() => unit.Description" class="text-danger" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+}
 @code {
     [SupplyParameterFromQuery]
     private int Id { get; set; }
 
     [SupplyParameterFromForm]
     private Product? Product { get; set; }
-
+    private Category Category { get; set; } = new();
+    private List<Category> categories = new List<Category>();
+    private List<Unit> units = new List<Unit>();
+    private Unit unit = new Unit();
     protected override async Task OnInitializedAsync()
     {
+       using var context2 = DbFactory.CreateDbContext();
+        categories = context2.Categories.ToList();
+        units = context2.Unit.ToList();
         using var context = DbFactory.CreateDbContext();
         Product ??= await context.product.FirstOrDefaultAsync(m => m.Id == Id);
 
@@ -121,4 +235,29 @@ else
         using var context = DbFactory.CreateDbContext();
         return context.product.Any(e => e.Id == id);
     }
+    private async Task AddCategory()
+    {
+        // sping = true;
+        using var context = DbFactory.CreateDbContext();
+        context.Categories.Add(Category);
+        await context.SaveChangesAsync();
+        IsPopupVisible = false;
+        NavigationManager.NavigateTo("/products/create", true);
+    }
+    private async Task AddUnit()
+    {
+        // sping = true;
+        using var context = DbFactory.CreateDbContext();
+        context.Unit.Add(unit);
+        await context.SaveChangesAsync();
+        IsPopupVisible2 = false;
+        NavigationManager.NavigateTo("/products/create", true);
+    }
+    private bool IsPopupVisible = false;
+    private bool IsPopupVisible2 = false;
+    private void ShowPopupCategory() => IsPopupVisible = true;
+    private void ClosePopupCategory() => IsPopupVisible = false;
+
+    private void ShowPopupUnit() => IsPopupVisible2 = true;
+    private void ClosePopupUnit() => IsPopupVisible2 = false;
 }

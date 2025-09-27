@@ -15,6 +15,10 @@ namespace BlazorSalesMS.Data
         [StringLength(50, ErrorMessage = "SKU cannot exceed 50 characters.")]
         public string SKU { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "sales system is required.")]
+        [StringLength(50, ErrorMessage = "sales system cannot exceed 50 characters.")]
+        public string SalesSystem { get; set; } = string.Empty;
+
         [Range(0, int.MaxValue, ErrorMessage = "Quantity on hand must be a non-negative number.")]
         public int QuantityOH { get; set; }
 
@@ -33,7 +37,11 @@ namespace BlazorSalesMS.Data
         public decimal SalesPrice { get; set; }
 
         [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Expiration date is required.")]
+        [Required(ErrorMessage = "LastUpdate date is required.")]
+        public DateTime RecepitDate { get; set; } = DateTime.Now.Date;
+       
+        [DataType(DataType.Date)]
+        [Required(ErrorMessage = "LastUpdate date is required.")]
         public DateTime LastUpdateQtyDate { get; set; } = DateTime.Now.Date;
        
         [DataType(DataType.Date)]
