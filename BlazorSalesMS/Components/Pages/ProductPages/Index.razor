@@ -14,24 +14,23 @@
 </p>
 <div class="mb-6">
     <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category" style="width:220px" />
-    <a @onclick="Sortbyalphabet" style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Alphabet |</a>
-    <a @onclick="SortbySalesprice" style="cursor:pointer;color:darkblue">Sort by Unit Price |</a>
+    <a style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Click Colunm |</a>
 </div>
 
-<QuickGrid Items="filteredProducts.AsQueryable()" TGridItem="Product" Class="table table-striped">
-    <PropertyColumn Property="product => product.ItemName" />
-    <PropertyColumn Property="product => product.SKU" />
-    <PropertyColumn Property="product => product.Unit" />
-    <PropertyColumn Property="product => product.Category" />
-    <PropertyColumn Property="@(product => product.PdnPrice.ToString("N2"))" Title="Costing Price" />
-    <PropertyColumn Property="@(product => product.SalesPrice.ToString("N2"))" Title="Sales Price" />
-    <PropertyColumn Property="product => product.LastUpdateDate.ToShortDateString()" Title="Last Update"/>
-    <PropertyColumn Property="product => product.ExpirationDate.ToShortDateString()" Title="Expair Date"/>
-
-    <TemplateColumn Context="product">
-        <a href="@($"products/edit?id={product.Id}")">Edit</a> |
-        <a href="@($"products/details?id={product.Id}")">Details</a> |
-        <a href="@($"products/delete?id={product.Id}")">Delete</a>
+<QuickGrid Items="filteredProducts.AsQueryable()" TGridItem="Product" Class="table table-striped" >
+    <PropertyColumn Property="product => product.ItemName" Sortable="true" />
+    <PropertyColumn Property="product => product.SKU" Sortable="true" />
+    <PropertyColumn Property="product => product.Unit" Sortable="true" />
+    <PropertyColumn Property="product => product.Category" Sortable="true" />
+    <PropertyColumn Property="@(product => product.PdnPrice.ToString("N2"))" Title="Costing Price" Sortable="true" />
+    <PropertyColumn Property="@(product => product.SalesPrice.ToString("N2"))" Title="Sales Price" Sortable="true" />
+    <PropertyColumn Property="product => product.LastUpdateDate.ToShortDateString()" Title="Last Update" Sortable="true" />
+    <PropertyColumn Property="product => product.ExpirationDate.ToShortDateString()" Title="Expair Date" Sortable="true" />
+    
+    <TemplateColumn Context="product" Title="Action">
+        <a class="btn btn-warning" href="@($"products/edit?id={product.Id}")">Edit</a> |
+        <a class="btn btn-info"  href="@($"products/details?id={product.Id}")">Details</a> |
+        <a class="btn btn-danger" href="@($"products/delete?id={product.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 

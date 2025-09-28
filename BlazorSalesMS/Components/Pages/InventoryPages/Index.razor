@@ -24,7 +24,7 @@
     <PropertyColumn Property="@(inventory => inventory.SalesPrice.ToString("N2"))" Title="Sales Price" Sortable="true" />
     <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" Sortable="true" />
 
-    <TemplateColumn Context="inventory">
+    <TemplateColumn Context="inventory" Title="Action">
         <a class="btn btn-warning" href="@($"/recepits/create?id={inventory.Id}")">Recepit</a> |
         <a class="btn btn-success" href="@($"inventories/edit?id={inventory.Id}")">Edit</a> |
         <a class="btn btn-info" href="@($"inventories/details?id={inventory.Id}")">Details</a> |

@@ -41,8 +41,8 @@
             <dd class="col-sm-10">@product.ExpirationDate</dd>
         </dl>
         <div>
-            <a href="@($"/products/edit?id={product.Id}")">Edit</a> |
-            <a href="@($"/products")">Back to List</a>
+            <a class="btn btn-warning" href="@($"/products/edit?id={product.Id}")">Edit</a> |
+            <a class="btn btn-info" href="@($"/products")">Back to List</a>
         </div>
     }
 </div>

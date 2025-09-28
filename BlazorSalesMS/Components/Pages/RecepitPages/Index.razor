@@ -26,7 +26,7 @@
     <PropertyColumn Property="recepit => recepit.UnitPrice" Sortable="true" />
     <PropertyColumn Property="recepit => recepit.RecepitDate.ToShortDateString()" Title="Recept Date" Sortable="true" />
 
-    <TemplateColumn Context="recepit">
+    <TemplateColumn Context="recepit" Title="Action">
         <a class="btn btn-success" href="@($"recepits/edit?id={recepit.Id}")">Edit</a> |
         <a class="btn btn-info" href="@($"recepits/details?id={recepit.Id}")">Details</a> |
         <a class="btn btn-danger" href="@($"recepits/delete?id={recepit.Id}")">Delete</a>

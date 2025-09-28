@@ -21,7 +21,7 @@
             </div>
             <div class="mb-3">
                 <label for="itemname" class="form-label">ItemName:</label> 
-                <input  @bind="Product.ItemName" class="underline-only" /> 
+                <input @bind="Product.ItemName" class="underline-only" @onblur="Check" />
                 <ValidationMessage For="() => Product.ItemName" class="text-danger" /> 
             </div>        
             
@@ -168,15 +168,33 @@
         </div>
     </div>
 }
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Alredy Exits</h4>
+
+                </div>
+               
+                                <button type="submit" class="btn btn-primary" @onclick="CloseMgs">Closed</button>
+                        </div>
+                    </div>
+                </div>
+}
 @code {
     [SupplyParameterFromForm]
-    private Product Product { get; set; } = new();
+    private Product? Product { get; set; } = new();
+    private List<Product> products = new List<Product>();
     private Inventory Inventory { get; set; } = new();
     private Category Category { get; set; } = new();
     private List<Category> categories = new List<Category>();
     private List<Unit> units = new List<Unit>();
     private Unit unit = new Unit();
     int LastId;
+    private InputText? itemNameInput;
+    private ElementReference inputRef;
     private ApplicationDbContext context = default!;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     protected override void OnInitialized()
@@ -184,12 +202,14 @@
         context = DbFactory.CreateDbContext();
         categories = context.Categories.ToList();
         units = context.Unit.ToList();
+        products = context.product.ToList();
         using var contextLastId = DbFactory.CreateDbContext();
         LastId = contextLastId.product.OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault();
         Product.SKU = "SKU" + LastId;
     }
     private async Task AddProduct()
     {
+
         using var context = DbFactory.CreateDbContext();
         context.product.Add(Product);
         await context.SaveChangesAsync();
@@ -197,7 +217,7 @@
         Inventory.PId = Product.Id;
         Inventory.ItemName = Product.ItemName;
         Inventory.SKU = Product.SKU;
-        Inventory.QuantityOH =0;
+        Inventory.QuantityOH = 0;
         Inventory.Unit = Product.Unit;
         Inventory.Category = Product.Category;
         Inventory.PdnPrice = Product.PdnPrice;
@@ -208,6 +228,7 @@
         context2.Inventories.Add(Inventory);
         await context2.SaveChangesAsync();
         NavigationManager.NavigateTo("/products");
+
     }
     private async Task AddCategory()
     {
@@ -227,10 +248,24 @@
         IsPopupVisible2 = false;
         NavigationManager.NavigateTo("/products/create", true);
     }
+    void Check()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var result = products.Where(x => x.ItemName.Equals(Product.ItemName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if(result!=null)
+        {
+            IsPopupMgs = true;
+        }
+
+    }
+    private bool IsPopupMgs = false;
     private bool IsPopupVisible = false;
     private bool IsPopupVisible2 = false;
     private void ShowPopupCategory() => IsPopupVisible = true;
     private void ClosePopupCategory() => IsPopupVisible = false;
+
+
+    async Task CloseMgs() { IsPopupMgs = false; Product.ItemName = "";  }
 
     private void ShowPopupUnit() => IsPopupVisible2 = true;
     private void ClosePopupUnit() => IsPopupVisible2 = false;
