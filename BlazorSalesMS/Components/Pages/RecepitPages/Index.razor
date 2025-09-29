@@ -15,7 +15,7 @@
   
 </div>
 
-<QuickGrid Items="filteredInventories.AsQueryable()" TGridItem="Recepit" Class="table table-striped my-grid">
+<QuickGrid Items="filteredInventories.AsQueryable()" TGridItem="Recepit" Class="table-striped my-grid">
     <PropertyColumn Property="recepit => recepit.ItemName" Title="Item" Sortable="true"/>
     <PropertyColumn Property="recepit => recepit.Supplyer" Sortable="true" />
     <PropertyColumn Property="recepit => recepit.Address" Sortable="true" />

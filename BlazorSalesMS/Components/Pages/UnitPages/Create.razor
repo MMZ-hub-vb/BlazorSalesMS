@@ -4,6 +4,7 @@
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 
 <h1>Create</h1>
@@ -14,15 +15,14 @@
     <div class="col-md-4">
         <EditForm method="post" Model="Unit" OnValidSubmit="AddUnit" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
                 <label for="unitname" class="form-label">Unit Name:</label> 
-                <InputText id="unitname" @bind-Value="Unit.UnitName" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Unit.UnitName" class="underline-only"  @onblur="Check" />
                 <ValidationMessage For="() => Unit.UnitName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label> 
-                <InputText id="description" @bind-Value="Unit.Description" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Unit.Description" class="underline-only"  />
                 <ValidationMessage For="() => Unit.Description" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>
@@ -30,21 +30,34 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-2">
-        <a href="/units">Back to List</a>
+        <a  href="/units">Back to List</a>
+
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">This alredy Exits</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-2">
-        <a href="/inventories/create">Back to Add Inventory</a>
-    </div>
-    
-</div>
+}
 
 @code {
     [SupplyParameterFromForm]
     private Unit Unit { get; set; } = new();
-
+    private List<Unit> UnitList { get; set; } = new();
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    protected override void OnInitialized()
+    {
+        using var context = DbFactory.CreateDbContext();
+        UnitList = context.Unit.ToList();
+    }
     private async Task AddUnit()
     {
         using var context = DbFactory.CreateDbContext();
@@ -52,4 +65,17 @@
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/units");
     }
+    void Check()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var result = UnitList.Where(x => x.UnitName.Equals(Unit.UnitName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if (result != null)
+        {
+            IsPopupMgs = true;
+        }
+
+    }
+    private bool IsPopupMgs = false;
+    void CloseMgs() { IsPopupMgs = false; Unit.UnitName = ""; }
 }
+

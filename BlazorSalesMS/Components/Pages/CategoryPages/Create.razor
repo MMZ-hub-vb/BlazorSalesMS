@@ -3,7 +3,7 @@
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
-
+@rendermode InteractiveServer
 
 <h2>Create</h2>
 
@@ -18,15 +18,14 @@
     <div class="col-md-4">
         <EditForm method="post" Model="Category" OnValidSubmit="AddCategory" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3 underline-input">
                 <label for="categoryname" class="form-label">Category Name:</label> 
-                <InputText id="categoryname" @bind-Value="Category.CategoryName" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Category.CategoryName" class="underline-only"  @onblur="Check" />
                 <ValidationMessage For="() => Category.CategoryName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label> 
-                <InputText id="description" @bind-Value="Category.Description" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Category.Description" class="underline-only"  />
                 <ValidationMessage For="() => Category.Description" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>
@@ -37,12 +36,42 @@
 <div>
     <a href="/categories">Back to List</a>
 </div>
-
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">This alredy Exits</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     [SupplyParameterFromForm]
     private Category Category { get; set; } = new();
+    private List<Category> CategoryList { get; set; } = new();
     bool sping = false;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    protected override void OnInitialized()
+    {
+        using var context = DbFactory.CreateDbContext();
+        CategoryList = context.Categories.ToList();
+    }
+    void Check()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var result = CategoryList.Where(x => x.CategoryName.Equals(Category.CategoryName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if (result != null)
+        {
+            IsPopupMgs = true;
+        }
+
+    }
     private async Task AddCategory()
     {
         sping = true;
@@ -52,4 +81,6 @@
         sping = false;
         NavigationManager.NavigateTo("/categories");
     }
+    private bool IsPopupMgs = false;
+    async Task CloseMgs() { IsPopupMgs = false; Category.CategoryName = ""; }
 }

@@ -6,27 +6,27 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @attribute [Authorize(Roles = "Admin")]
-<PageTitle>Index</PageTitle>
+<PageTitle>Unit List</PageTitle>
 
-<h1>Index</h1>
+<h1>Unit List</h1>
 <div class="row">
     <div class="col-2">
-        <a href="units/create">Create New</a>
+        <a class="btn btn-success" href="units/create">Create New</a>
     </div>
     <div class="col-2">
-        <a href="/inventories/create">Back to Add Inventory</a>
+        <a class="btn btn-warning" href="/inventories/create">Back to Add Inventory</a>
     </div>
 
 </div>
 
-<QuickGrid Class="table" Items="context.Unit">
+<QuickGrid Class="table-striped" Items="context.Unit">
     <PropertyColumn Property="unit => unit.UnitName" Title="Unit Name"/>
     <PropertyColumn Property="unit => unit.Description" />
 
     <TemplateColumn Context="unit">
-        <a href="@($"units/edit?id={unit.Id}")">Edit</a> |
-        <a href="@($"units/details?id={unit.Id}")">Details</a> |
-        <a href="@($"units/delete?id={unit.Id}")">Delete</a>
+        <a class="btn btn-success" href="@($"units/edit?id={unit.Id}")">Edit</a> |
+        <a class="btn btn-info" href="@($"units/details?id={unit.Id}")">Details</a> |
+        <a class="btn btn-danger" href="@($"units/delete?id={unit.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 

@@ -22,7 +22,7 @@
             
             <div class="mb-3">
                 <label for="companyname" class="form-label">CompanyName:</label> 
-                <input type="text" @bind="Distributor.CompanyName" class="underline-only" aria-required="true" />
+                <input type="text" @bind="Distributor.CompanyName" class="underline-only" aria-required="true" @onblur="Check" />
                 <ValidationMessage For="() => Distributor.CompanyName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
@@ -78,10 +78,25 @@
 <div>
     <a href="/distributors">Back to List</a>
 </div>
-
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">This alredy Exits</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     [SupplyParameterFromForm]
     private Distributor Distributor { get; set; } = new();
+    private List<Distributor> DistributorList { get; set; } = new();
     private string savedFileName = "";
     private string status = "";
     private string status2 = "";
@@ -90,8 +105,10 @@
     protected override void OnInitialized()
     {
         using var contextLastId = DbFactory.CreateDbContext();
-        LastId = contextLastId.distributors.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+        LastId = contextLastId.distributors.OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault();
         Distributor.Code= "DIS" + LastId;
+        using var context = DbFactory.CreateDbContext();
+        DistributorList = context.distributors.ToList();
     }
     private async Task AddDistributor()
     {
@@ -129,4 +146,16 @@
             status = $"Error: {ex.Message}";
         }
     }
+    void Check()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var result = DistributorList.Where(x => x.CompanyName.Equals(Distributor.CompanyName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if (result != null)
+        {
+            IsPopupMgs = true;
+        }
+
+    }
+    private bool IsPopupMgs = false;
+    async Task CloseMgs() { IsPopupMgs = false; Distributor.CompanyName = ""; }
 }

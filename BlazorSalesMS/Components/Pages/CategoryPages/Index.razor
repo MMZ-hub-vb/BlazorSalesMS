@@ -7,26 +7,26 @@
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @attribute [Authorize(Roles = "Admin")]
 <PageTitle>Index</PageTitle>
-
+<h1>Category List</h1>
 <div class="row">
     <div class="col-2">
-        <a href="categories/create">Create New</a>
+        <a class="btn btn-success" href="categories/create">Create New</a>
     </div>
     <div class="col-2">
-        <a href="/inventories/create">Back to Add Inventory</a>
+        <a class="btn btn-warning" href="/inventories/create">Back to Add Inventory</a>
     </div>
 
 </div>
 
 
-<QuickGrid Class="table" Items="context.Categories">
+<QuickGrid Class="table-striped" Items="context.Categories">
     <PropertyColumn Property="category => category.CategoryName" Title="Category Name" />
     <PropertyColumn Property="category => category.Description" />
 
     <TemplateColumn Context="category">
-        <a href="@($"categories/edit?id={category.Id}")">Edit</a> |
-        <a href="@($"categories/details?id={category.Id}")">Details</a> |
-        <a href="@($"categories/delete?id={category.Id}")">Delete</a>
+        <a class="btn btn-success" href="@($"categories/edit?id={category.Id}")">Edit</a> |
+        <a class="btn btn-info" href="@($"categories/details?id={category.Id}")">Details</a> |
+        <a class="btn btn-danger" href="@($"categories/delete?id={category.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 

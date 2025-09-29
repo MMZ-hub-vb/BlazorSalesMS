@@ -170,16 +170,16 @@
 }
 @if (IsPopupMgs)
 {
-    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
         <div class="modal-dialog" role="document">
-            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel">Alredy Exits</h4>
-
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">This alredy Exits</h4>
                 </div>
-               
-                                <button type="submit" class="btn btn-primary" @onclick="CloseMgs">Closed</button>
-                        </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+                   </div>
                     </div>
                 </div>
 }

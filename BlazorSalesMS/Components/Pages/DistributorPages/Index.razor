@@ -11,10 +11,10 @@
 <h1>Distributor List</h1>
 
 <p>
-    <a href="distributors/create">Create New</a>
+    <a class="btn btn-success" href="distributors/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.distributors">
+<QuickGrid Class="table-striped" Items="context.distributors">
     <PropertyColumn Property="distributor => distributor.Code" />
     
     <PropertyColumn Property="distributor => distributor.CompanyName" />
@@ -22,10 +22,10 @@
     <PropertyColumn Property="distributor => distributor.Address" />
     <PropertyColumn Property="distributor => distributor.Contact" />
 
-    <TemplateColumn Context="distributor">
-        <a href="@($"distributors/edit?id={distributor.Id}")">Edit</a> |
-        <a href="@($"distributors/details?id={distributor.Id}")">Details</a> |
-        <a href="@($"distributors/delete?id={distributor.Id}")">Delete</a>
+    <TemplateColumn Context="distributor" Title="Action">
+        <a class="btn btn-success" href="@($"distributors/edit?id={distributor.Id}")">Edit</a> |
+        <a class="btn btn-info" href="@($"distributors/details?id={distributor.Id}")">Details</a> |
+        <a class="btn btn-danger" href="@($"distributors/delete?id={distributor.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 

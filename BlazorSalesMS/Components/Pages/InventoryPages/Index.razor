@@ -12,9 +12,9 @@
 <div class="mb-6">
     <input type="text"  @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category"  style="width:220px" />
     <a style="color:darkblue">| Sort by click any Column |</a>
-    <a href="/recepits">| Recepit Details |</a>
+    <a class="btn btn-info" href="/recepits">Recepit Details</a>
 </div>
-<QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table table-striped my-grid">
+<QuickGrid  Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table-striped">
    
     <PropertyColumn Property="inventory => inventory.ItemName" Title="Item" Sortable="true"  />
     <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" Sortable="true" />
@@ -27,7 +27,7 @@
     <TemplateColumn Context="inventory" Title="Action">
         <a class="btn btn-warning" href="@($"/recepits/create?id={inventory.Id}")">Recepit</a> |
         <a class="btn btn-success" href="@($"inventories/edit?id={inventory.Id}")">Edit</a> |
-        <a class="btn btn-info" href="@($"inventories/details?id={inventory.Id}")">Details</a> |
+        <a class="btn btn-info" href="@($"inventories/details?id={inventory.Id}")">Details</a> 
     </TemplateColumn>
 </QuickGrid>
 

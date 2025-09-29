@@ -10,14 +10,14 @@
 <h1>Product List</h1>
 
 <p>
-    <a href="products/create">Create New</a>
+    <a class="btn btn-success" href="products/create">Create New</a>
 </p>
 <div class="mb-6">
     <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search name or category" style="width:220px" />
     <a style="cursor:pointer;color:darkblue;margin-left:100px">|Sort by Click Colunm |</a>
 </div>
 
-<QuickGrid Items="filteredProducts.AsQueryable()" TGridItem="Product" Class="table table-striped" >
+<QuickGrid Items="filteredProducts.AsQueryable()" TGridItem="Product" Class="table-striped" >
     <PropertyColumn Property="product => product.ItemName" Sortable="true" />
     <PropertyColumn Property="product => product.SKU" Sortable="true" />
     <PropertyColumn Property="product => product.Unit" Sortable="true" />

@@ -1,0 +1,56 @@
+﻿@page "/orders"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorSalesMS.Data
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Orde List</h1>
+
+<p>
+    <a class="btn btn-success" href="orders/create">Create New</a>
+</p>
+<div class="mb-6">
+    <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search Order Code or Distributor Name" style="width:250px" />
+    <a style="color:darkblue">| Sort by click any Column |</a>
+</div>
+<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped">
+    <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
+    <PropertyColumn Property="order => order.ProductName" Sortable="true" />
+    <PropertyColumn Property="order => order.Quantity" Sortable="true" />
+    <PropertyColumn Property="order => order.OrderDate" Sortable="true" />
+    <PropertyColumn Property="order => order.DistributorId" Sortable="true" />
+    <PropertyColumn Property="order => order.ProductId" Sortable="true" />
+    <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
+    <PropertyColumn Property="order => order.Status" Sortable="true" />
+    <PropertyColumn Property="order => order.Unit" Sortable="true" />
+    <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
+
+    <TemplateColumn Context="order" Title="Action">
+        <a class="btn btn-warning" href="@($"orders/edit?id={order.Id}")">Edit</a> |
+        <a class="btn btn-info" href="@($"orders/details?id={order.Id}")">Details</a> |
+        <a class="btn btn-warning" href="@($"orders/delete?id={order.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private ApplicationDbContext context = default!;
+    private string search = "";
+    private List<Order> orderList = [];
+
+    private IEnumerable<Order> filteredOrders =>
+         string.IsNullOrWhiteSpace(search)
+             ? orderList
+             : orderList.Where(i =>
+                 i.OrderCode.Contains(search, StringComparison.OrdinalIgnoreCase) || i.DistributorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
