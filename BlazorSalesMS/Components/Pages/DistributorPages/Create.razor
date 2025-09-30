@@ -29,9 +29,14 @@
                 <label for="personname" class="form-label">PersonName:</label> 
                 <input type="text" @bind="Distributor.PersonName" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.PersonName" class="text-danger" /> 
-            </div>        
+            </div>
             <div class="mb-3">
-                <label for="address" class="form-label">Address:</label> 
+                <label for="address" class="form-label">Zone:</label>
+                <input type="text" @bind="Distributor.Zone" class="underline-only" aria-required="true" />
+                <ValidationMessage For="() => Distributor.Zone" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Area:</label> 
                 <input type="text" @bind="Distributor.Address" class="underline-only" aria-required="true" />
                 <ValidationMessage For="() => Distributor.Address" class="text-danger" /> 
             </div>        

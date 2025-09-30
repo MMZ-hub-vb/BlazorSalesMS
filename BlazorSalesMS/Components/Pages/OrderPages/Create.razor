@@ -2,9 +2,11 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
 @using BlazorSalesMS.Data
+@using System.Security.Claims
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider //current user
 <PageTitle>Create</PageTitle>
 
 <h1>Create</h1>
@@ -16,17 +18,31 @@
         <EditForm method="post" Model="Order" OnValidSubmit="AddOrder" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <div class="mb-3">
+                <label for="distributorname" class="form-label" style="color:red">CODE:@OrderID</label>
+        
+            </div>
+            <div class="mb-3">
                 <label for="distributorname" class="form-label">Distributor Name:</label>
                 <input type="text" @bind="search2" class="underline-only" @bind:event="oninput"  placeholder="Search Distributor Name"/>
                 <ValidationMessage For="() => Order.DistributorName" class="text-danger" />
             </div>
             @if (!string.IsNullOrWhiteSpace(search2))
             {
-                <QuickGrid Items="filteredDistributors.AsQueryable()" TGridItem="Distributor" Class="table-striped">
-                    <PropertyColumn Property="@(p=>p.CompanyName)" Title="Distributor Nmae" />
-                    <PropertyColumn Property="@(p => p.Address)" Title="Address" />
-                    <PropertyColumn Property="@(p => p.Code)" Title="Code" />
-                </QuickGrid>
+                
+                <table class="table-striped" style="background-color:silver">
+                    <tr>
+                        <th>Distributor</th>
+                        <th>Address/Zone</th>
+                    </tr>
+                    @foreach (var data in filteredDistributors)
+                    {
+                        <tr @onclick="()=>OnRowClickDistributor(data.Id,data.CompanyName)" style="cursor:pointer">
+                            <td>@data.CompanyName</td>
+                            <td>@data.Address</td>
+                        </tr>
+                    }
+                  
+                </table>
             }
             <div class="mb-3">
                 <label for="distributorname" class="form-label">Product Name:</label>
@@ -35,21 +51,23 @@
             </div>
             @if (!string.IsNullOrWhiteSpace(search))
             {
-                <QuickGrid Items="filteredInventories.AsQueryable()" TGridItem="Inventory" Class="table-striped">
-                    <PropertyColumn Property="inventory => inventory.ItemName"  Title="Item" />
-                    <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" />
-                    <PropertyColumn Property="inventory => inventory.Unit" />
-                    <PropertyColumn Property="inventory => inventory.Category" />
-                    <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" />
-                
-                </QuickGrid>
+                <table class="table-striped" style="background-color:silver">
+                    <tr>
+                        <th>Distributor</th>
+                        <th>Address/Zone</th>
+                    </tr>
+                    @foreach (var data in filteredInventories)
+                    {
+                        <tr @onclick="() => OnRowClickProduct(data.Id, data.ItemName,data.Unit,data.SalesPrice,data.QuantityOH)" style="cursor:pointer">
+                            <td>@data.ItemName</td>
+                            <td>@data.QuantityOH</td>
+                            <td>@data.SalesPrice</td>
+                        </tr>
+                    }
+
+                </table>
             }
-            <div class="mb-3">
-                <label for="productname" class="form-label">ProductName:</label>
-                <input type="text" @bind="Order.ProductName" class="underline-only" />
-                <ValidationMessage For="() => Order.ProductName" class="text-danger" /> 
-            </div>
-          
+           
             <div class="mb-3">
                 <label for="quantity" class="form-label">Quantity:</label>
                 <input type="text" @bind="Order.Quantity" class="underline-only" />
@@ -57,13 +75,27 @@
             </div>        
             <div class="mb-3">
                 <label for="orderdate" class="form-label">OrderDate:</label>
-                <input type="text" @bind="Order.OrderDate" class="underline-only" />
+                <input type="date" @bind="Order.OrderDate" class="underline-only" />
                 <ValidationMessage For="() => Order.OrderDate" class="text-danger" /> 
             </div>        
           
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
+    <div class="col-md-4">
+        <QuickGrid Items="Orders.AsQueryable()" Class="table-striped">
+            <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
+            <PropertyColumn Property="order => order.DistributorName" Sortable="true" />
+            <PropertyColumn Property="order => order.ProductName" Sortable="true" />
+            <PropertyColumn Property="order => order.Quantity" Sortable="true" />
+            <PropertyColumn Property="order => order.QtyOh" />
+            <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date" />
+            <PropertyColumn Property="order => order.Status" Sortable="true" />
+            <PropertyColumn Property="order => order.Unit" Sortable="true" />
+            <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
+            <PropertyColumn Property="order => order.User" />
+        </QuickGrid>
+        </div>
 </div>
 
 <div>
@@ -74,12 +106,21 @@
 @code {
     [SupplyParameterFromForm]
     private Order Order { get; set; } = new();
+    private List<Order>? Orders { get; set; } = new();
     private string search = "";
     private string search2 = "";
-    private Product? selectedProduct;
-    private Distributor? selectedDistributor;
+    private string OrderID;
+    private int? selectedProductId;
+    private int? selectedProductQtyOh;
+    private string? selectedProductUnit;
+    private double? selectedProductUnitPrice;
+    private int? selectedDistributorId;
     private List<Distributor> distributors = [];
     private List<Inventory> inventories = [];
+    private List<Inventory> inventories2 = [];
+    private Distributor distributor = new();
+    private Inventory inventory = new();
+    private string user;//for current user
     private IEnumerable<Inventory> filteredInventories =>
          string.IsNullOrWhiteSpace(search)
              ? inventories
@@ -91,24 +132,55 @@
     ? distributors
     : distributors.Where(i =>
          i.CompanyName.Contains(search2, StringComparison.OrdinalIgnoreCase)).ToList();
-
+    private ApplicationDbContext context = default!;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();//get current user
+        user = authState.User.Identity?.Name;
         using var context = DbFactory.CreateDbContext();
-        inventories = context.Inventories.ToList();
+        Orders = context.order.Where(x=>x.User==user.ToString()).ToList();
+        using var context1 = DbFactory.CreateDbContext();
+        inventories = context1.Inventories.ToList();
         using var context2 = DbFactory.CreateDbContext();
         distributors = context2.distributors.ToList();
+        using var contextLastId = DbFactory.CreateDbContext();
+        OrderID="ORD"+Convert.ToString(contextLastId.order.OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault());
     }
     private async Task AddOrder()
     {
+        Order.DistributorName = search2;
+        Order.DistributorId =Convert.ToInt32(selectedDistributorId);
+        Order.ProductName = search;
+        Order.ProductId = Convert.ToInt32(selectedProductId);
+        Order.Unit = selectedProductUnit;
+        Order.QtyOh =Convert.ToInt32(selectedProductQtyOh);
+        Order.OrderCode = OrderID;
+        Order.User = user.ToString();
+        Order.UnitPrice =Convert.ToDecimal(selectedProductUnitPrice);
+        Order.TotalPrice = Order.UnitPrice * Order.Quantity;
         using var context = DbFactory.CreateDbContext();
         context.order.Add(Order);
         await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/orders");
+        Order.Id = 0;
+        // NavigationManager.NavigateTo("/orders");
+        Orders = context.order.Where(x => x.User == user.ToString()).ToList();
+      
     }
-    private void OnRowClick(Product product)
+
+    private void OnRowClickDistributor(int id,string name)
     {
-        selectedProduct = product;
+        search2 = name;
+        Order.DistributorName = name;
+        selectedDistributorId = id;
+    }
+    private void OnRowClickProduct(int id, string name,string unit,decimal unitprice,int qty)
+    {
+        search = name;
+        Order.ProductName = name;
+        selectedProductId = id;
+        selectedProductUnit = unit;
+        selectedProductQtyOh = qty;
+        selectedProductUnitPrice =Convert.ToDouble(unitprice);
     }
 }

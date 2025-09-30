@@ -21,9 +21,12 @@ namespace BlazorSalesMS.Data
         public DateTime OrderDate { get; set; } = DateTime.Now.Date;
         public int DistributorId { get; set; }
         public int ProductId { get; set; }
+        public int QtyOh { get; set; }
         public string OrderCode { get; set; } = string.Empty;
         public string Status { get; set; } = "Pending";
         public string Unit { get; set; } = string.Empty;
+        public string User { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
     }
 }

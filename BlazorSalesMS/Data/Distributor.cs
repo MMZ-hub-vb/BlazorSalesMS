@@ -8,6 +8,7 @@ namespace BlazorSalesMS.Data
         public string Code { get; set; }=string.Empty;
         public string DocUrl1 { get; set; } = string.Empty;
         public string DocUrl12 { get; set; } = string.Empty;
+        public string Zone { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "company name is required.")]
         [StringLength(100, ErrorMessage = "Company name cannot exceed 100 characters.")]
