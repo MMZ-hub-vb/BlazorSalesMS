@@ -4,6 +4,7 @@
 @using BlazorSalesMS.Data
 @rendermode InteractiveServer
 @implements IAsyncDisposable
+@inject NavigationManager NavigationManager
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 
 <PageTitle>Index</PageTitle>
@@ -17,17 +18,17 @@
     <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search Order Code or Distributor Name" style="width:250px" />
     <a style="color:darkblue">| Sort by click any Column |</a>
 </div>
-<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped">
+<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped" RowClass="GetRowClass">
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
     <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
     <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
-    <PropertyColumn Property="order => order.Status" Sortable="true" />
+    <PropertyColumn Property="order => order.Status" Sortable="true"  />
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
-        <a class="btn btn-warning" href="@($"orders/edit?id={order.Id}")">Edit</a> |
+        <a class="btn btn-warning" @onclick="()=>ApprovedOrder(order.OrderCode)">Approved</a> |
         <a class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
-        <a class="btn btn-danger" href="@($"orders/delete?id={order.Id}")">Delete</a>
+        <a class="btn btn-danger" @onclick="()=>DeleteOrder(order.OrderCode)" >Delete</a>
     </TemplateColumn>
 </QuickGrid>
 @code {
@@ -47,15 +48,37 @@
         context = DbFactory.CreateDbContext();
         //orderList = context.order.ToList();
         orderList = context.order
-             .GroupBy(o => new { o.OrderCode, o.DistributorName,o.User })
+             .GroupBy(o => new { o.OrderCode, o.DistributorName,o.User,o.Status })
              .Select(g => new Order
              {
                  OrderCode = g.Key.OrderCode,
                  DistributorName=g.Key.DistributorName,
                  User=g.Key.User,
+                 Status=g.Key.Status,
                 TotalPrice = g.Sum(x => x.UnitPrice*x.Quantity)
              }).ToList();
     }
-   
+    private async Task DeleteOrder(string OrderCode)
+    {
+        using var context = DbFactory.CreateDbContext();
+       var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
+
+       using var context2 = DbFactory.CreateDbContext();
+        context2.order.Remove(order!);
+        await context2.SaveChangesAsync();
+        NavigationManager.NavigateTo("/orders", true);
+    }
+    async Task ApprovedOrder(string OrderCode)
+    {
+        var context2 = DbFactory.CreateDbContext();
+        var context3 = DbFactory.CreateDbContext();
+        var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode==OrderCode).ToListAsync();
+        foreach (var o in orders)
+        {
+            o.Status = "Approved";
+        }
+        await context3.SaveChangesAsync();
+        NavigationManager.NavigateTo("/orders", true);
+    }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

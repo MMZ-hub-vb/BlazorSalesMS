@@ -28,21 +28,23 @@
             </div>
             @if (!string.IsNullOrWhiteSpace(search2))
             {
-                
-                <table class="table-striped" style="background-color:silver">
+                @if(tablehiden==true)
+                { 
+                <table class="table table-striped">
                     <tr>
                         <th>Distributor</th>
-                        <th>Address/Zone</th>
+                        <th>Zone</th>
                     </tr>
                     @foreach (var data in filteredDistributors)
                     {
                         <tr @onclick="()=>OnRowClickDistributor(data.Id,data.CompanyName)" style="cursor:pointer">
                             <td>@data.CompanyName</td>
-                            <td>@data.Address</td>
+                            <td>@data.Zone</td>
                         </tr>
                     }
                   
                 </table>
+                }
             }
             <div class="mb-3">
                 <label for="distributorname" class="form-label">Product Name:</label>
@@ -51,10 +53,13 @@
             </div>
             @if (!string.IsNullOrWhiteSpace(search))
             {
-                <table class="table-striped" style="background-color:silver">
+                    @if (tablehiden1 == true)
+                        {
+                        <table class="table table-striped">
                     <tr>
-                        <th>Distributor</th>
-                        <th>Address/Zone</th>
+                        <th>Item</th>
+                        <th>QtyOh</th>
+                        <th>Unit Price</th>
                     </tr>
                     @foreach (var data in filteredInventories)
                     {
@@ -66,6 +71,7 @@
                     }
 
                 </table>
+                }
             }
            
             <div class="mb-3">
@@ -93,9 +99,11 @@
             <PropertyColumn Property="order => order.Status" Sortable="true" />
             <PropertyColumn Property="order => order.Unit" Sortable="true" />
             <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
-            <PropertyColumn Property="order => order.User" />
         </QuickGrid>
+        <hr />
+        <button type="button" class="btn btn-success float-end" @onclick="ConfarmedOrder">Confarmed Order</button>
         </div>
+   
 </div>
 
 <div>
@@ -121,6 +129,8 @@
     private Distributor distributor = new();
     private Inventory inventory = new();
     private string user;//for current user
+    bool tablehiden =true;
+    bool tablehiden1 = true;
     private IEnumerable<Inventory> filteredInventories =>
          string.IsNullOrWhiteSpace(search)
              ? inventories
@@ -139,7 +149,7 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();//get current user
         user = authState.User.Identity?.Name;
         using var context = DbFactory.CreateDbContext();
-        Orders = context.order.Where(x=>x.User==user.ToString()).ToList();
+        Orders = context.order.Where(x=>x.User==user.ToString() && x.Status=="Pending").ToList();
         using var context1 = DbFactory.CreateDbContext();
         inventories = context1.Inventories.ToList();
         using var context2 = DbFactory.CreateDbContext();
@@ -165,7 +175,9 @@
         Order.Id = 0;
         // NavigationManager.NavigateTo("/orders");
         Orders = context.order.Where(x => x.User == user.ToString()).ToList();
-      
+        tablehiden1 = true;
+        search = "";
+        Order.Quantity =0;
     }
 
     private void OnRowClickDistributor(int id,string name)
@@ -173,6 +185,7 @@
         search2 = name;
         Order.DistributorName = name;
         selectedDistributorId = id;
+        tablehiden = false;
     }
     private void OnRowClickProduct(int id, string name,string unit,decimal unitprice,int qty)
     {
@@ -182,5 +195,21 @@
         selectedProductUnit = unit;
         selectedProductQtyOh = qty;
         selectedProductUnitPrice =Convert.ToDouble(unitprice);
+        tablehiden1 = false;
+    }
+    async Task ConfarmedOrder()
+    {
+        var context2 = DbFactory.CreateDbContext();
+        var context3 = DbFactory.CreateDbContext();
+        var orders = await context3.order.Where(o => o.Status == "Pending" && o.User == user).ToListAsync();
+        foreach (var o in orders)
+        {
+            o.Status = "Approval";
+        }
+        await context3.SaveChangesAsync();
+         //context3.Database.ExecuteSqlRawAsync("UPDATE order SET Status = 'Approval' WHERE Status = 'Pending'");
+           Orders = context2.order.Where(x => x.User == user.ToString() && x.Status=="Pending").ToList(); 
+        // NavigationManager.NavigateTo("/orders");
+
     }
 }

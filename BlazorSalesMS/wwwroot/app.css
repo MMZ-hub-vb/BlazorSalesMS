@@ -92,14 +92,4 @@ h1:focus {
     z-index: 1000;
     position: relative;
 }
-/*QuickGrid background color*/
-.my-grid {
-    background-color: #f0f8ff; /* light blue */
-}
-.quickgrid tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.quickgrid tr:nth-child(odd) {
-    background-color: #ffffff;
-}
+/*QuickGrid*/

@@ -11,6 +11,7 @@
 
 <div>
     <h2>Order</h2>
+    <button class="btn btn-success">Approved Order</button>
     <hr />
     <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped">
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
@@ -18,27 +19,29 @@
     <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
     <PropertyColumn Property="order => order.ProductName" Sortable="true" />
     <PropertyColumn Property="order => order.Unit" Sortable="true" />
+    <PropertyColumn Property="order => order.Quantity" Sortable="true" />
     <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.Status" Sortable="true" />
-    <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
         <a class="btn btn-warning" href="@($"orders/edit?id={order.Id}")">Edit</a> |
         <a class="btn btn-danger" href="@($"orders/delete?id={order.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
+<hr />
+    <button class="btn btn-success float-end">Approved Order</button>
 </div>
 
 @code {
-    private List<Order>? order=new();
-
+    private List<Order>? order=[];
+    private ApplicationDbContext context = default!;
     [SupplyParameterFromQuery]
     private string? OrderCode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
+        context = DbFactory.CreateDbContext();
         order = await context.order.Where(m => m.OrderCode == OrderCode).ToListAsync();
 
         if (order is null)
