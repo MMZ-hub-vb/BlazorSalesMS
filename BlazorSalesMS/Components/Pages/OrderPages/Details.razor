@@ -1,5 +1,6 @@
 ﻿@page "/orders/details"
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
@@ -11,50 +12,34 @@
 <div>
     <h2>Order</h2>
     <hr />
-    @if (order is null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else {
-        <dl class="row">
-            <dt class="col-sm-2">DistributorName</dt>
-            <dd class="col-sm-10">@order.DistributorName</dd>
-            <dt class="col-sm-2">ProductName</dt>
-            <dd class="col-sm-10">@order.ProductName</dd>
-            <dt class="col-sm-2">Quantity</dt>
-            <dd class="col-sm-10">@order.Quantity</dd>
-            <dt class="col-sm-2">OrderDate</dt>
-            <dd class="col-sm-10">@order.OrderDate</dd>
-            <dt class="col-sm-2">DistributorId</dt>
-            <dd class="col-sm-10">@order.DistributorId</dd>
-            <dt class="col-sm-2">ProductId</dt>
-            <dd class="col-sm-10">@order.ProductId</dd>
-            <dt class="col-sm-2">OrderCode</dt>
-            <dd class="col-sm-10">@order.OrderCode</dd>
-            <dt class="col-sm-2">Status</dt>
-            <dd class="col-sm-10">@order.Status</dd>
-            <dt class="col-sm-2">Unit</dt>
-            <dd class="col-sm-10">@order.Unit</dd>
-            <dt class="col-sm-2">UnitPrice</dt>
-            <dd class="col-sm-10">@order.UnitPrice</dd>
-        </dl>
-        <div>
-            <a href="@($"/orders/edit?id={order.Id}")">Edit</a> |
-            <a href="@($"/orders")">Back to List</a>
-        </div>
-    }
+    <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped">
+    <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
+    <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
+    <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
+    <PropertyColumn Property="order => order.ProductName" Sortable="true" />
+    <PropertyColumn Property="order => order.Unit" Sortable="true" />
+    <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
+    <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
+    <PropertyColumn Property="order => order.Status" Sortable="true" />
+    <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
+    <PropertyColumn Property="order => order.User" />
+    <TemplateColumn Context="order" Title="Action">
+        <a class="btn btn-warning" href="@($"orders/edit?id={order.Id}")">Edit</a> |
+        <a class="btn btn-danger" href="@($"orders/delete?id={order.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
 </div>
 
 @code {
-    private Order? order;
+    private List<Order>? order=new();
 
     [SupplyParameterFromQuery]
-    private int Id { get; set; }
+    private string? OrderCode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        order = await context.order.FirstOrDefaultAsync(m => m.Id == Id);
+        order = await context.order.Where(m => m.OrderCode == OrderCode).ToListAsync();
 
         if (order is null)
         {
