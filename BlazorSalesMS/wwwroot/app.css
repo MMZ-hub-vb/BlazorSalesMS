@@ -93,3 +93,22 @@ h1:focus {
     position: relative;
 }
 /*QuickGrid*/
+.custom-quickgrid tr {
+    background-color: white;
+}
+
+    .custom-quickgrid tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    .custom-quickgrid tr:hover {
+        background-color:lightblue;
+    }
+/* Style only header + cells of the column */
+.approved-row {
+    background-color: #d4edda; /* light green */
+}
+
+.approval-row {
+    background-color: #f8d7da; /* light red */
+}

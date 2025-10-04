@@ -18,11 +18,12 @@
     <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search Order Code or Distributor Name" style="width:250px" />
     <a style="color:darkblue">| Sort by click any Column |</a>
 </div>
-<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped" RowClass="GetRowClass">
+<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped custom-quickgrid">
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
     <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
     <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
-    <PropertyColumn Property="order => order.Status" Sortable="true"  />
+        <PropertyColumn Property="order => order.Status" Sortable="true" class="approved-row" />
+        <PropertyColumn Property="order => order.Status" Sortable="true" class="approval-row" />
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
@@ -45,6 +46,7 @@
 
     protected override void OnInitialized()
     {
+        //string stataus="";
         context = DbFactory.CreateDbContext();
         //orderList = context.order.ToList();
         orderList = context.order
@@ -57,13 +59,14 @@
                  Status=g.Key.Status,
                 TotalPrice = g.Sum(x => x.UnitPrice*x.Quantity)
              }).ToList();
+
     }
     private async Task DeleteOrder(string OrderCode)
     {
         using var context = DbFactory.CreateDbContext();
-       var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
+        var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
 
-       using var context2 = DbFactory.CreateDbContext();
+        using var context2 = DbFactory.CreateDbContext();
         context2.order.Remove(order!);
         await context2.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
@@ -76,9 +79,18 @@
         foreach (var o in orders)
         {
             o.Status = "Approved";
+            var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            await context2.Database.ExecuteSqlRawAsync(
+               "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
+                    o.Quantity,o.ProductId);
+
         }
         await context3.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
+    }
+    private string GetRowClass(Order order)
+    {
+        return  order.Status == "Approved" ? "approved-row" : "approval-row";
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

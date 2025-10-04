@@ -13,7 +13,7 @@
     <h2>Order</h2>
     <button class="btn btn-success">Approved Order</button>
     <hr />
-    <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped">
+    <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped" >
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
     <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
     <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
@@ -48,5 +48,22 @@
         {
             NavigationManager.NavigateTo("notfound");
         }
+    }
+    async Task ApprovedOrder(string OrderCode)
+    {
+        var context2 = DbFactory.CreateDbContext();
+        var context3 = DbFactory.CreateDbContext();
+        var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode == OrderCode).ToListAsync();
+        foreach (var o in orders)
+        {
+            o.Status = "Approved";
+            var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            await context2.Database.ExecuteSqlRawAsync(
+               "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
+                    o.Quantity, o.ProductId);
+
+        }
+        await context3.SaveChangesAsync();
+        NavigationManager.NavigateTo("/orders", true);
     }
 }

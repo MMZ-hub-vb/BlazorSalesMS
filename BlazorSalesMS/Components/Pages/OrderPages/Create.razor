@@ -174,10 +174,10 @@
         await context.SaveChangesAsync();
         Order.Id = 0;
         // NavigationManager.NavigateTo("/orders");
-        Orders = context.order.Where(x => x.User == user.ToString()).ToList();
+        Orders = context.order.Where(x => x.User == user.ToString() && x.Status == "Pending").ToList();
         tablehiden1 = true;
         search = "";
-        Order.Quantity =0;
+        //Order.Quantity =0;
     }
 
     private void OnRowClickDistributor(int id,string name)
