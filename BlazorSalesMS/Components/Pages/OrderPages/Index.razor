@@ -22,8 +22,8 @@
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
     <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
     <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
-        <PropertyColumn Property="order => order.Status" Sortable="true" class="approved-row" />
-        <PropertyColumn Property="order => order.Status" Sortable="true" class="approval-row" />
+
+     <PropertyColumn Property="order => order.Status" Sortable="true" />
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
@@ -36,14 +36,16 @@
     private ApplicationDbContext context = default!;
     private string search = "";
     private List<Order> orderList = [];
-    private List<Order> orderSummaries = [];
-
+    private List<Order> orderAsDs = new();
+    private string? sortColumn;
+    private bool ascending = true;
     private IEnumerable<Order> filteredOrders =>
          string.IsNullOrWhiteSpace(search)
              ? orderList
              : orderList.Where(i =>
                  i.OrderCode.Contains(search, StringComparison.OrdinalIgnoreCase) || i.DistributorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
+   
     protected override void OnInitialized()
     {
         //string stataus="";
@@ -57,7 +59,7 @@
                  DistributorName=g.Key.DistributorName,
                  User=g.Key.User,
                  Status=g.Key.Status,
-                TotalPrice = g.Sum(x => x.UnitPrice*x.Quantity)
+                TotalPrice = g.Sum(x => (decimal)x.UnitPrice* (decimal)x.Quantity)
              }).ToList();
 
     }
@@ -88,9 +90,6 @@
         await context3.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
     }
-    private string GetRowClass(Order order)
-    {
-        return  order.Status == "Approved" ? "approved-row" : "approval-row";
-    }
+   
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
