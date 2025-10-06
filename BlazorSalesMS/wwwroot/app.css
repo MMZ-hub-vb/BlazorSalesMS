@@ -106,11 +106,13 @@ h1:focus {
     }
 /* Style only header + cells of the column */
 .approved-row {
-    background-color: #d4edda;
+    background-color:green;
+    color:white;
 }
 
 .approval-row {
-    background-color: #fff3cd;
+    background-color: red;
+    color: white;
 }
 
 .rejected-row {

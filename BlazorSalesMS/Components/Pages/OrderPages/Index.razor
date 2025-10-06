@@ -1,4 +1,5 @@
 ﻿@page "/orders"
+
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
@@ -14,24 +15,30 @@
 <p>
     <a class="btn btn-success" href="orders/create">Create New</a>
 </p>
-<div class="mb-6">
+<div class="mb-6" style="font-weight:bold">
     <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search Order Code or Distributor Name" style="width:250px" />
     <a style="color:darkblue">| Sort by click any Column |</a>
+    <input type="radio" id="sortCode" name="sortOption" @onclick="IsChecked" /> 
+    <label for="sortCode" style="color:green">Approved</label> |
+    <input type="radio" id="sortCode" name="sortOption" @onclick="IsChecked2" />
+    <label for="sortCode" style="color:red">Approval</label>
 </div>
-<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped custom-quickgrid">
-    <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
-    <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
-    <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
 
-     <PropertyColumn Property="order => order.Status" Sortable="true" />
+<QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped custom-quickgrid">
+
+    <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
+    <PropertyColumn Property="order => order.DistributorName" Sortable="true" />
+    <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date" />
+    <PropertyColumn Property="order => order.Status" Sortable="true" Class=@rowcolor/>
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
-        <a class="btn btn-warning" @onclick="()=>ApprovedOrder(order.OrderCode)">Approved</a> |
+        <a class="btn btn-warning" @onclick="() => ApprovedOrder(order.OrderCode)">Approved</a> |
         <a class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
-        <a class="btn btn-danger" @onclick="()=>DeleteOrder(order.OrderCode)" >Delete</a>
+        <a class="btn btn-danger" @onclick="() => DeleteOrder(order.OrderCode)">Delete</a>
     </TemplateColumn>
 </QuickGrid>
+
 @code {
     private ApplicationDbContext context = default!;
     private string search = "";
@@ -39,13 +46,14 @@
     private List<Order> orderAsDs = new();
     private string? sortColumn;
     private bool ascending = true;
+    string rowcolor = "";
     private IEnumerable<Order> filteredOrders =>
          string.IsNullOrWhiteSpace(search)
              ? orderList
              : orderList.Where(i =>
                  i.OrderCode.Contains(search, StringComparison.OrdinalIgnoreCase) || i.DistributorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
-   
+
     protected override void OnInitialized()
     {
         //string stataus="";
@@ -90,6 +98,51 @@
         await context3.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
     }
-   
+    private void SortByApproved()
+    {
+        context = DbFactory.CreateDbContext();
+        //orderList = context.order.ToList();
+        orderList = context.order
+             .GroupBy(o => new { o.OrderCode, o.DistributorName, o.User, o.Status })
+             .Select(g => new Order
+                     {
+                         OrderCode = g.Key.OrderCode,
+                         DistributorName = g.Key.DistributorName,
+                         User = g.Key.User,
+                         Status = g.Key.Status,
+                         TotalPrice = g.Sum(x => (decimal)x.UnitPrice * (decimal)x.Quantity)
+                     }).Where(o => o.Status == "Approved").ToList();
+        rowcolor = "approved-row";
+    }
+    private void SortByApproval()
+    {
+        context = DbFactory.CreateDbContext();
+        //orderList = context.order.ToList();
+        orderList = context.order
+             .GroupBy(o => new { o.OrderCode, o.DistributorName, o.User, o.Status })
+             .Select(g => new Order
+             {
+                 OrderCode = g.Key.OrderCode,
+                 DistributorName = g.Key.DistributorName,
+                 User = g.Key.User,
+                 Status = g.Key.Status,
+                 TotalPrice = g.Sum(x => (decimal)x.UnitPrice * (decimal)x.Quantity)
+             }).Where(o => o.Status == "Approval").ToList();
+        rowcolor = "approval-row";
+    }
+    private void IsChecked()
+    {
+        if(true)
+        {
+            SortByApproved();
+        }
+    }
+    private void IsChecked2()
+    {
+        if (true)
+        {
+            SortByApproval();
+        }
+    }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
