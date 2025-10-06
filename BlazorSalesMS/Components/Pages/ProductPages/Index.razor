@@ -22,8 +22,8 @@
     <PropertyColumn Property="product => product.SKU" Sortable="true" />
     <PropertyColumn Property="product => product.Unit" Sortable="true" />
     <PropertyColumn Property="product => product.Category" Sortable="true" />
-    <PropertyColumn Property="@(product => product.PdnPrice.ToString("N2"))" Title="Costing Price" Sortable="true" />
-    <PropertyColumn Property="@(product => product.SalesPrice.ToString("N2"))" Title="Sales Price" Sortable="true" />
+    <PropertyColumn Property="@(product => product.PdnPrice)" Title="Costing Price" Sortable="true" />
+    <PropertyColumn Property="@(product => product.SalesPrice)" Title="Sales Price" Sortable="true" />
     <PropertyColumn Property="product => product.LastUpdateDate.ToShortDateString()" Title="Last Update" Sortable="true" />
     <PropertyColumn Property="product => product.ExpirationDate.ToShortDateString()" Title="Expair Date" Sortable="true" />
     

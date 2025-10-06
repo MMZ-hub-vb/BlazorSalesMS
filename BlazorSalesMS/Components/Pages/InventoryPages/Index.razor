@@ -20,8 +20,8 @@
     <PropertyColumn Property="inventory => inventory.QuantityOH" Title="QtyOH" Sortable="true" />
     <PropertyColumn Property="inventory => inventory.Unit" Sortable="true" />
     <PropertyColumn Property="inventory => inventory.Category" Sortable="true" />
-    <PropertyColumn Property="@(inventory => inventory.PdnPrice.ToString("N2"))" Title="Costing Price" Sortable="true" />
-    <PropertyColumn Property="@(inventory => inventory.SalesPrice.ToString("N2"))" Title="Sales Price" Sortable="true" />
+    <PropertyColumn Property="@(inventory => inventory.PdnPrice)" Title="Costing Price" Sortable="true" />
+    <PropertyColumn Property="@(inventory => inventory.SalesPrice)" Title="Sales Price" Sortable="true" />
     <PropertyColumn Property="inventory => inventory.ExpirationDate.ToShortDateString()" Title="Expaired Date" Sortable="true" />
 
     <TemplateColumn Context="inventory" Title="Action">
