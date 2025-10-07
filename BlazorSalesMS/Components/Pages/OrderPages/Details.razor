@@ -2,6 +2,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
+@rendermode InteractiveServer
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -11,7 +12,7 @@
 
 <div>
     <h2>Order</h2>
-    <button class="btn btn-success">Approved Order</button>
+    <button class="btn btn-success" @onclick="ApprovedOrder">Approved Order</button>
     <hr />
     <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped" >
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
@@ -30,15 +31,30 @@
     </TemplateColumn>
 </QuickGrid>
 <hr />
-    <button class="btn btn-success float-end">Approved Order</button>
+    <button class="btn btn-success float-end" @onclick="ApprovedOrder">Approved Order</button>
 </div>
-
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">@PopupMgs</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     private List<Order>? order=[];
     private ApplicationDbContext context = default!;
     [SupplyParameterFromQuery]
     private string? OrderCode { get; set; }
-
+    bool IsPopupMgs = false;
+    string PopupMgs = "";
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
@@ -49,7 +65,7 @@
             NavigationManager.NavigateTo("notfound");
         }
     }
-    async Task ApprovedOrder(string OrderCode)
+    async Task ApprovedOrder()
     {
         var context2 = DbFactory.CreateDbContext();
         var context3 = DbFactory.CreateDbContext();
@@ -64,6 +80,10 @@
 
         }
         await context3.SaveChangesAsync();
-        NavigationManager.NavigateTo("/orders", true);
+        PopupMgs = " This order has been Approved!!";
+        IsPopupMgs = true;
+       // NavigationManager.NavigateTo("/orders", true);
     }
+    async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; }
+
 }

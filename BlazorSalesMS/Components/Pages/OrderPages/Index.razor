@@ -33,12 +33,26 @@
     <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
-        <a class="btn btn-warning" @onclick="() => ApprovedOrder(order.OrderCode)">Approved</a> |
+        <a class="btn btn-warning"  @onclick="() => ApprovedOrder(order.OrderCode)">Approved</a> |
         <a class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
         <a class="btn btn-danger" @onclick="() => DeleteOrder(order.OrderCode)">Delete</a>
     </TemplateColumn>
 </QuickGrid>
-
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">@PopupMgs</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     private ApplicationDbContext context = default!;
     private string search = "";
@@ -46,6 +60,8 @@
     private List<Order> orderAsDs = new();
     private string? sortColumn;
     private bool ascending = true;
+    bool IsPopupMgs = false;
+    string PopupMgs = "";
     string rowcolor = "";
     private IEnumerable<Order> filteredOrders =>
          string.IsNullOrWhiteSpace(search)
@@ -96,7 +112,9 @@
 
         }
         await context3.SaveChangesAsync();
-        NavigationManager.NavigateTo("/orders", true);
+        PopupMgs = " This order has been Approved!!";
+        IsPopupMgs = true;
+        //NavigationManager.NavigateTo("/orders", true);
     }
     private void SortByApproved()
     {
@@ -145,4 +163,5 @@
         }
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    async Task CloseMgs() { IsPopupMgs = false;  PopupMgs= ""; }
 }
