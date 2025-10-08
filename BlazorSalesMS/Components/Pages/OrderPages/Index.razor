@@ -35,7 +35,7 @@
     <TemplateColumn Context="order" Title="Action">
         <a class="btn btn-warning"  @onclick="() => ApprovedOrder(order.OrderCode)">Approved</a> |
         <a class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
-        <a class="btn btn-danger" @onclick="() => DeleteOrder(order.OrderCode)">Delete</a>
+        <a class="btn btn-danger" href="@($"orders/detailsdelete?OrderCode={order.OrderCode}")">Delete Order</a> |
     </TemplateColumn>
 </QuickGrid>
 @if (IsPopupMgs)
@@ -89,13 +89,25 @@
     }
     private async Task DeleteOrder(string OrderCode)
     {
+        var context3 = DbFactory.CreateDbContext();
+        var context4 = DbFactory.CreateDbContext();
+        var context5 = DbFactory.CreateDbContext();
+        var orders = await context4.order.Where(o => o.Status == "Approved" ||o.Status=="Approval" && o.OrderCode == OrderCode).ToListAsync();
+        foreach (var o in orders)
+        {
+                var inventory = context5.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+                await context3.Database.ExecuteSqlRawAsync(
+                   "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
+                        o.Quantity, o.ProductId);
+        }
         using var context = DbFactory.CreateDbContext();
         var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
-
-        using var context2 = DbFactory.CreateDbContext();
-        context2.order.Remove(order!);
-        await context2.SaveChangesAsync();
+        //using var context1 = DbFactory.CreateDbContext();
+        context.order.Remove(order!);
+        await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
+
+     
     }
     async Task ApprovedOrder(string OrderCode)
     {
@@ -104,12 +116,14 @@
         var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode==OrderCode).ToListAsync();
         foreach (var o in orders)
         {
+            if(o.Status=="Approval")
+            {
             o.Status = "Approved";
             var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
             await context2.Database.ExecuteSqlRawAsync(
                "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
                     o.Quantity,o.ProductId);
-
+            }
         }
         await context3.SaveChangesAsync();
         PopupMgs = " This order has been Approved!!";

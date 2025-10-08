@@ -1,4 +1,4 @@
-﻿@page "/orders/delete"
+﻿@page "/orders/delete2"
 @using Microsoft.EntityFrameworkCore
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
@@ -75,16 +75,18 @@
     {
         using var context = DbFactory.CreateDbContext();
         order = await context.order.FirstOrDefaultAsync(m => m.Id == Id);
-        Pid = order.ProductId;
-        qty = order.Quantity;
+        
         if (order is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
+       
     }
 
     private async Task DeleteOrder()
     {
+        Pid = order.ProductId;
+        qty = order.Quantity;
         using var context = DbFactory.CreateDbContext();
         using var context2 = DbFactory.CreateDbContext();
         context.order.Remove(order!);

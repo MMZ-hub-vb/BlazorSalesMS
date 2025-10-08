@@ -22,7 +22,7 @@
         
             </div>
             <div class="mb-3">
-                <label for="distributorname" class="form-label">Distributor Name:</label>
+                <label for="distributorname" class="form-label label2">Distributor Name:</label>
                 <input type="text" @bind="search2" class="underline-only" @bind:event="oninput"  placeholder="Search Distributor Name"/>
                 <ValidationMessage For="() => Order.DistributorName" class="text-danger" />
             </div>
@@ -30,24 +30,26 @@
             {
                 @if(tablehiden==true)
                 { 
-                <table class="table table-striped">
+                <table class="table table-striped" style="background-color:whitesmoke;border-radius:13px">
                     <tr>
                         <th>Distributor</th>
                         <th>Zone</th>
                     </tr>
                     @foreach (var data in filteredDistributors)
                     {
+                        <tbody>
                         <tr @onclick="()=>OnRowClickDistributor(data.Id,data.CompanyName)" style="cursor:pointer">
                             <td>@data.CompanyName</td>
                             <td>@data.Zone</td>
                         </tr>
+                        </tbody>
                     }
                   
                 </table>
                 }
             }
             <div class="mb-3">
-                <label for="distributorname" class="form-label">Product Name:</label>
+                <label for="distributorname" class="form-label label2">Product Name:</label>
                 <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search product name"  />
                 <ValidationMessage For="() => Order.ProductName" class="text-danger" /> 
             </div>
@@ -55,7 +57,7 @@
             {
                     @if (tablehiden1 == true)
                         {
-                        <table class="table table-striped">
+                    <table class="table table-striped" style="background-color:whitesmoke;border-radius:13px">
                     <tr>
                         <th>Item</th>
                         <th>QtyOh</th>
@@ -75,12 +77,12 @@
             }
            
             <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity:</label>
+                <label for="quantity" class="form-label label2">Quantity:</label>
                 <input type="text" @bind="Order.Quantity" class="underline-only" />
                 <ValidationMessage For="() => Order.Quantity" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="orderdate" class="form-label">OrderDate:</label>
+                <label for="orderdate" class="form-label label2">OrderDate:</label>
                 <input type="date" @bind="Order.OrderDate" class="underline-only" />
                 <ValidationMessage For="() => Order.OrderDate" class="text-danger" /> 
             </div>        
@@ -88,17 +90,21 @@
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
-    <div class="col-md-4">
+    <div class="col">
         <QuickGrid Items="Orders.AsQueryable()" Class="table-striped">
-            <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
-            <PropertyColumn Property="order => order.DistributorName" Sortable="true" />
-            <PropertyColumn Property="order => order.ProductName" Sortable="true" />
-            <PropertyColumn Property="order => order.Quantity" Sortable="true" />
+            <PropertyColumn Property="order => order.OrderCode" Sortable="true" Title="Code"/>
+            <PropertyColumn Property="order => order.DistributorName" Sortable="true" Title="Distrbutor"/>
+            <PropertyColumn Property="order => order.ProductName" Sortable="true" Title="Name"/>
+            <PropertyColumn Property="order => order.Quantity" Sortable="true" Title="Qty"/>
             <PropertyColumn Property="order => order.QtyOh" />
-            <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date" />
-            <PropertyColumn Property="order => order.Status" Sortable="true" />
+            <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Date" />
+
             <PropertyColumn Property="order => order.Unit" Sortable="true" />
             <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
+            <TemplateColumn Context="order" Title="Action">
+                <a class="btn btn-warning" href="@($"orders/edit2?id={order.Id}&user={order.User}")">Edit</a> |
+                <a class="btn btn-danger" href="@($"orders/delete2?id?={order.Id}")">Delete</a>
+            </TemplateColumn>
         </QuickGrid>
         <hr />
         <button type="button" class="btn btn-success float-end" @onclick="ConfarmedOrder">Confarmed Order</button>
@@ -131,6 +137,7 @@
     private string user;//for current user
     bool tablehiden =true;
     bool tablehiden1 = true;
+    
     private IEnumerable<Inventory> filteredInventories =>
          string.IsNullOrWhiteSpace(search)
              ? inventories
@@ -207,9 +214,20 @@
             o.Status = "Approval";
         }
         await context3.SaveChangesAsync();
-         //context3.Database.ExecuteSqlRawAsync("UPDATE order SET Status = 'Approval' WHERE Status = 'Pending'");
-           Orders = context2.order.Where(x => x.User == user.ToString() && x.Status=="Pending").ToList(); 
+        //context3.Database.ExecuteSqlRawAsync("UPDATE order SET Status = 'Approval' WHERE Status = 'Pending'");
+        Orders = context2.order.Where(x => x.User == user.ToString() && x.Status=="Pending").ToList(); 
         // NavigationManager.NavigateTo("/orders");
 
     }
+    private void DeleteOrder(int id)
+    {
+
+        using var context = DbFactory.CreateDbContext();
+        using var context2 = DbFactory.CreateDbContext();
+        var order = context2.order.FirstOrDefault(x => x.Id == id);
+        context.order.Remove(order!);
+        context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/orders/create",true);
+    }
+   
 }

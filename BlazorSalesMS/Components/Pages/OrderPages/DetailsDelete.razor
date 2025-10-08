@@ -1,0 +1,105 @@
+﻿@page "/orders/detailsdelete"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorSalesMS.Data
+@rendermode InteractiveServer
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+
+<div>
+    <h2 style="color:red">Are you sure you want to delete this this Order?</h2>
+    <button class="btn btn-danger" @onclick="DeleteOrder">Order Delete</button>
+    <hr />
+    <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped" >
+    <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
+    <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
+    <PropertyColumn Property="@(order => order.OrderDate.ToShortDateString())" Sortable="true" Title="Order Date"/>
+    <PropertyColumn Property="order => order.ProductName" Sortable="true" />
+    <PropertyColumn Property="order => order.Unit" Sortable="true" />
+    <PropertyColumn Property="order => order.Quantity" Sortable="true" />
+    <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
+    <PropertyColumn Property="order => order.TotalPrice" Sortable="true" />
+    <PropertyColumn Property="order => order.Status" Sortable="true" />
+    <PropertyColumn Property="order => order.User" />
+  
+</QuickGrid>
+<hr />
+    <button class="btn btn-danger float-end" @onclick="DeleteOrder">Order Delete</button>
+</div>
+@if (IsPopupMgs)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color:whitesmoke;border:solid;border-radius:13px;width:300px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel" style="color:red;text-align:center">@PopupMgs</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" @onclick="CloseMgs">Closed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    private List<Order>? order=[];
+    private ApplicationDbContext context = default!;
+    [SupplyParameterFromQuery]
+    private string? OrderCode { get; set; }
+    bool IsPopupMgs = false;
+    string PopupMgs = "";
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        order = await context.order.Where(m => m.OrderCode == OrderCode).ToListAsync();
+
+        if (order is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+    async Task ApprovedOrder()
+    {
+        var context2 = DbFactory.CreateDbContext();
+        var context3 = DbFactory.CreateDbContext();
+        var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode == OrderCode).ToListAsync();
+        foreach (var o in orders)
+        {
+            o.Status = "Approved";
+            var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            await context2.Database.ExecuteSqlRawAsync(
+               "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
+                    o.Quantity, o.ProductId);
+
+        }
+        await context3.SaveChangesAsync();
+        PopupMgs = " This order has been Approved!!";
+        IsPopupMgs = true;
+       // NavigationManager.NavigateTo("/orders", true);
+    }
+    private async Task DeleteOrder()
+    {
+        var context3 = DbFactory.CreateDbContext();
+        var context4 = DbFactory.CreateDbContext();
+        var context5 = DbFactory.CreateDbContext();
+        var orders = await context4.order.Where(o => o.Status == "Approved" || o.Status == "Approval" && o.OrderCode == OrderCode).ToListAsync();
+        foreach (var o in orders)
+        {
+            var inventory = context5.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            await context3.Database.ExecuteSqlRawAsync(
+               "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
+                    o.Quantity, o.ProductId);
+        }
+        using var context = DbFactory.CreateDbContext();
+        var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
+        //using var context1 = DbFactory.CreateDbContext();
+        context.order.Remove(order!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/orders", true);
+    }
+    async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; }
+
+}
