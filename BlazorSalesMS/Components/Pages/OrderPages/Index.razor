@@ -123,13 +123,13 @@
                 o.Status = "Approved";
                 if(disinventory==null)
                 {
-                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, 0,o.UnitPrice);
+                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice,DistributorId) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4},{5} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, o.Quantity, o.UnitPrice,o.DistributorId);
                 }
                 else
                 {
                   await context2.Database.ExecuteSqlRawAsync(
-                  "UPDATE DisInventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1} AND DistributorName={2}",
-                     o.Quantity,o.ProductId,o.DistributorName);
+                    "UPDATE DisInventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1} AND DistributorId={2}",
+                     o.Quantity,o.ProductId,o.DistributorId);
                 }
                 
             }

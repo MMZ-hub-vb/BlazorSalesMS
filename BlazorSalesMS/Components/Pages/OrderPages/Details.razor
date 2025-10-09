@@ -67,23 +67,34 @@
     }
     async Task ApprovedOrder()
     {
+        var contextInsert = DbFactory.CreateDbContext();
         var context2 = DbFactory.CreateDbContext();
         var context3 = DbFactory.CreateDbContext();
         var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode == OrderCode).ToListAsync();
         foreach (var o in orders)
         {
-            o.Status = "Approved";
-            var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
-            await context2.Database.ExecuteSqlRawAsync(
-               "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
-                    o.Quantity, o.ProductId);
+            var disinventory = await context.DisInventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            if (o.Status == "Approval")
+            {
+                o.Status = "Approved";
+                if (disinventory == null)
+                {
+                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice,DistributorId) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4},{5} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, o.Quantity, o.UnitPrice, o.DistributorId);
+                }
+                else
+                {
+                    await context2.Database.ExecuteSqlRawAsync(
+                      "UPDATE DisInventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1} AND DistributorId={2}",
+                       o.Quantity, o.ProductId, o.DistributorId);
+                }
 
+            }
         }
         await context3.SaveChangesAsync();
         PopupMgs = " This order has been Approved!!";
         IsPopupMgs = true;
-       // NavigationManager.NavigateTo("/orders", true);
+        // NavigationManager.NavigateTo("/orders/details", true);
     }
-    async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; }
+    async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; NavigationManager.NavigateTo("/orders", true); }
 
 }

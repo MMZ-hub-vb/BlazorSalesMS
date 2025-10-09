@@ -6,6 +6,7 @@ namespace BlazorSalesMS.Data
     {
         public int Id { get; set; }
         public int? PId { get; set; }
+        public int DistributorId { get; set; }
         public string? DistributorName { get; set; }
 
         [Required(ErrorMessage = "Item name is required.")]
