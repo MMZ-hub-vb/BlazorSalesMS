@@ -1,0 +1,149 @@
+﻿@page "/disinventories/edit"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>DisInventory</h2>
+<hr />
+@if (DisInventory is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="DisInventory" OnValidSubmit="UpdateDisInventory" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="DisInventory.Id" value="@DisInventory.Id" />
+                <div class="mb-3">
+                    <label for="pid" class="form-label">PId:</label>
+                    <InputNumber id="pid" @bind-Value="DisInventory.PId" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.PId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="distributorname" class="form-label">DistributorName:</label>
+                    <InputText id="distributorname" @bind-Value="DisInventory.DistributorName" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.DistributorName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="itemname" class="form-label">ItemName:</label>
+                    <InputText id="itemname" @bind-Value="DisInventory.ItemName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => DisInventory.ItemName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="sku" class="form-label">SKU:</label>
+                    <InputText id="sku" @bind-Value="DisInventory.SKU" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => DisInventory.SKU" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="salessystem" class="form-label">SalesSystem:</label>
+                    <InputText id="salessystem" @bind-Value="DisInventory.SalesSystem" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => DisInventory.SalesSystem" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="quantityoh" class="form-label">QuantityOH:</label>
+                    <InputNumber id="quantityoh" @bind-Value="DisInventory.QuantityOH" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.QuantityOH" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="unit" class="form-label">Unit:</label>
+                    <InputText id="unit" @bind-Value="DisInventory.Unit" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => DisInventory.Unit" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category:</label>
+                    <InputText id="category" @bind-Value="DisInventory.Category" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => DisInventory.Category" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="buingprice" class="form-label">buingPrice:</label>
+                    <InputNumber id="buingprice" @bind-Value="DisInventory.buingPrice" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.buingPrice" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="salesprice" class="form-label">SalesPrice:</label>
+                    <InputNumber id="salesprice" @bind-Value="DisInventory.SalesPrice" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.SalesPrice" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="recepitdate" class="form-label">RecepitDate:</label>
+                    <InputDate id="recepitdate" @bind-Value="DisInventory.RecepitDate" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.RecepitDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastupdateqtydate" class="form-label">LastUpdateQtyDate:</label>
+                    <InputDate id="lastupdateqtydate" @bind-Value="DisInventory.LastUpdateQtyDate" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.LastUpdateQtyDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="expirationdate" class="form-label">ExpirationDate:</label>
+                    <InputDate id="expirationdate" @bind-Value="DisInventory.ExpirationDate" class="form-control" />
+                    <ValidationMessage For="() => DisInventory.ExpirationDate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/disinventories">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private DisInventory? DisInventory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        DisInventory ??= await context.DisInventories.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (DisInventory is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateDisInventory()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(DisInventory!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!DisInventoryExists(DisInventory!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/disinventories");
+    }
+
+    private bool DisInventoryExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.DisInventories.Any(e => e.Id == id);
+    }
+}

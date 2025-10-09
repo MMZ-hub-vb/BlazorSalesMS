@@ -4,6 +4,7 @@ using BlazorSalesMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorSalesMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251009053312_DisInventory2")]
+    partial class DisInventory2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,9 +127,10 @@ namespace BlazorSalesMS.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("DistributorName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ExpirationDate")
+                    b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ItemName")
@@ -134,16 +138,19 @@ namespace BlazorSalesMS.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("LastUpdateQtyDate")
+                    b.Property<DateTime>("LastUpdateQtyDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("PId")
+                    b.Property<int>("PId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("PdnPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("QuantityOH")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("RecepitDate")
+                    b.Property<DateTime>("RecepitDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SKU")
@@ -151,7 +158,7 @@ namespace BlazorSalesMS.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal?>("SalesPrice")
+                    b.Property<decimal>("SalesPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("SalesSystem")
@@ -163,9 +170,6 @@ namespace BlazorSalesMS.Migrations
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<decimal?>("buingPrice")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

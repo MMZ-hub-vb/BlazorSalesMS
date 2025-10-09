@@ -95,10 +95,10 @@
         var orders = await context4.order.Where(o => o.Status == "Approved" ||o.Status=="Approval" && o.OrderCode == OrderCode).ToListAsync();
         foreach (var o in orders)
         {
-                var inventory = context5.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
-                await context3.Database.ExecuteSqlRawAsync(
-                   "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
-                        o.Quantity, o.ProductId);
+            var inventory = context5.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            await context3.Database.ExecuteSqlRawAsync(
+               "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
+                    o.Quantity, o.ProductId);
         }
         using var context = DbFactory.CreateDbContext();
         var order = await context.order.FirstOrDefaultAsync(m => m.OrderCode == OrderCode);
@@ -107,22 +107,31 @@
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/orders", true);
 
-     
+
     }
     async Task ApprovedOrder(string OrderCode)
     {
+        var contextInsert = DbFactory.CreateDbContext();
         var context2 = DbFactory.CreateDbContext();
         var context3 = DbFactory.CreateDbContext();
         var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode==OrderCode).ToListAsync();
         foreach (var o in orders)
         {
+            var disinventory =await context.DisInventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
             if(o.Status=="Approval")
             {
-            o.Status = "Approved";
-            var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
-            /*await context2.Database.ExecuteSqlRawAsync(
-               "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
-                    o.Quantity,o.ProductId);*/
+                o.Status = "Approved";
+                if(disinventory==null)
+                {
+                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, 0,o.UnitPrice);
+                }
+                else
+                {
+                  await context2.Database.ExecuteSqlRawAsync(
+                  "UPDATE DisInventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1} AND DistributorName={2}",
+                     o.Quantity,o.ProductId,o.DistributorName);
+                }
+                
             }
         }
         await context3.SaveChangesAsync();
@@ -177,5 +186,5 @@
         }
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
-    async Task CloseMgs() { IsPopupMgs = false;  PopupMgs= ""; }
+    async Task CloseMgs() { IsPopupMgs = false;  PopupMgs= ""; NavigationManager.NavigateTo("/orders", true); }
 }

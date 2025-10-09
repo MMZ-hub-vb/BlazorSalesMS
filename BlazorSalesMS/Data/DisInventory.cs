@@ -5,8 +5,8 @@ namespace BlazorSalesMS.Data
     public class DisInventory
     {
         public int Id { get; set; }
-        public int PId { get; set; }
-        public string DistributorName { get; set; } = string.Empty;
+        public int? PId { get; set; }
+        public string? DistributorName { get; set; }
 
         [Required(ErrorMessage = "Item name is required.")]
         [StringLength(100, ErrorMessage = "Item name cannot exceed 100 characters.")]
@@ -32,21 +32,12 @@ namespace BlazorSalesMS.Data
         public string Category { get; set; } = string.Empty;
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
-        public decimal PdnPrice { get; set; }
+        public decimal? buingPrice { get; set; }
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
-        public decimal SalesPrice { get; set; }
-
-        [DataType(DataType.Date)]
-        [Required(ErrorMessage = "LastUpdate date is required.")]
-        public DateTime RecepitDate { get; set; } = DateTime.Now.Date;
-
-        [DataType(DataType.Date)]
-        [Required(ErrorMessage = "LastUpdate date is required.")]
-        public DateTime LastUpdateQtyDate { get; set; } = DateTime.Now.Date;
-
-        [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Expiration date is required.")]
-        public DateTime ExpirationDate { get; set; } = DateTime.Now.Date;
+        public decimal ? SalesPrice { get; set; }
+        public DateTime? RecepitDate { get; set; } 
+        public DateTime?  LastUpdateQtyDate { get; set; }
+        public DateTime?   ExpirationDate { get; set; }
     }
 }

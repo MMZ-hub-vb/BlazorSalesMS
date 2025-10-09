@@ -1,0 +1,48 @@
+﻿@page "/disinventories"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorSalesMS.Data
+
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Distributor Inventory</h1>
+
+<p>
+    <a class="btn btn-success" href="disinventories/create">Create New</a>
+</p>
+
+<QuickGrid Class="table table-striped custom-quickgrid" Items="context.DisInventories">
+    <PropertyColumn Property="disinventory => disinventory.PId" />
+    <PropertyColumn Property="disinventory => disinventory.DistributorName" />
+    <PropertyColumn Property="disinventory => disinventory.ItemName" />
+    <PropertyColumn Property="disinventory => disinventory.SKU" />
+    <PropertyColumn Property="disinventory => disinventory.SalesSystem" />
+    <PropertyColumn Property="disinventory => disinventory.QuantityOH" />
+    <PropertyColumn Property="disinventory => disinventory.Unit" />
+    <PropertyColumn Property="disinventory => disinventory.Category" />
+    <PropertyColumn Property="disinventory => disinventory.buingPrice" />
+    <PropertyColumn Property="disinventory => disinventory.SalesPrice" />
+    <PropertyColumn Property="disinventory => disinventory.RecepitDate" />
+ 
+    <PropertyColumn Property="disinventory => disinventory.ExpirationDate" />
+
+    <TemplateColumn Context="disinventory">
+        <a class="btn btn-warning" href="@($"disinventories/edit?id={disinventory.Id}")">Edit</a> |
+        <a  class="btn btn-info" href="@($"disinventories/details?id={disinventory.Id}")">Details</a> |
+        <a class="btn btn-danger" href="@($"disinventories/delete?id={disinventory.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

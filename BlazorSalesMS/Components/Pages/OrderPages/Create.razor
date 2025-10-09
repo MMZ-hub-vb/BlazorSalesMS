@@ -221,7 +221,7 @@
         await context3.SaveChangesAsync();
         //context3.Database.ExecuteSqlRawAsync("UPDATE order SET Status = 'Approval' WHERE Status = 'Pending'");
         Orders = context2.order.Where(x => x.User == user.ToString() && x.Status=="Pending").ToList(); 
-        // NavigationManager.NavigateTo("/orders");
+        NavigationManager.NavigateTo("/orders");
 
     }
     private void DeleteOrder(int id)

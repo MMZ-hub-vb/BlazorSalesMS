@@ -1,0 +1,103 @@
+﻿@page "/disinventories/delete"
+@using Microsoft.EntityFrameworkCore
+@using BlazorSalesMS.Data
+@inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>DisInventory</h2>
+    <hr />
+    @if (disinventory is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">PId</dt>
+            <dd class="col-sm-10">@disinventory.PId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DistributorName</dt>
+            <dd class="col-sm-10">@disinventory.DistributorName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ItemName</dt>
+            <dd class="col-sm-10">@disinventory.ItemName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">SKU</dt>
+            <dd class="col-sm-10">@disinventory.SKU</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">SalesSystem</dt>
+            <dd class="col-sm-10">@disinventory.SalesSystem</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">QuantityOH</dt>
+            <dd class="col-sm-10">@disinventory.QuantityOH</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Unit</dt>
+            <dd class="col-sm-10">@disinventory.Unit</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">@disinventory.Category</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">buingPrice</dt>
+            <dd class="col-sm-10">@disinventory.buingPrice</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">SalesPrice</dt>
+            <dd class="col-sm-10">@disinventory.SalesPrice</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">RecepitDate</dt>
+            <dd class="col-sm-10">@disinventory.RecepitDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">LastUpdateQtyDate</dt>
+            <dd class="col-sm-10">@disinventory.LastUpdateQtyDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ExpirationDate</dt>
+            <dd class="col-sm-10">@disinventory.ExpirationDate</dd>
+        </dl>
+        <EditForm method="post" Model="disinventory" OnValidSubmit="DeleteDisInventory" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(disinventory is null)">Delete</button> |
+            <a href="/disinventories">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private DisInventory? disinventory;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        disinventory = await context.DisInventories.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (disinventory is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteDisInventory()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.DisInventories.Remove(disinventory!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/disinventories");
+    }
+}
