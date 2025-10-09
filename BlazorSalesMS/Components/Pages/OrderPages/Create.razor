@@ -102,8 +102,8 @@
             <PropertyColumn Property="order => order.Unit" Sortable="true" />
             <PropertyColumn Property="order => order.UnitPrice" Sortable="true" />
             <TemplateColumn Context="order" Title="Action">
-                <a class="btn btn-warning" href="@($"orders/edit2?id={order.Id}&user={order.User}")">Edit</a> |
-                <a class="btn btn-danger" href="@($"orders/delete2?id?={order.Id}")">Delete</a>
+                <!--<a class="btn btn-warning" href="@($"orders/edit2?id={order.Id}&user={order.User}")">Edit</a> |-->
+                <a class="btn btn-danger" href="@($"orders/delete2?id={order.Id}")">Delete</a>
             </TemplateColumn>
         </QuickGrid>
         <hr />
@@ -137,7 +137,7 @@
     private string user;//for current user
     bool tablehiden =true;
     bool tablehiden1 = true;
-    
+    int currentQtyOh;
     private IEnumerable<Inventory> filteredInventories =>
          string.IsNullOrWhiteSpace(search)
              ? inventories
@@ -159,6 +159,7 @@
         Orders = context.order.Where(x=>x.User==user.ToString() && x.Status=="Pending").ToList();
         using var context1 = DbFactory.CreateDbContext();
         inventories = context1.Inventories.ToList();
+       
         using var context2 = DbFactory.CreateDbContext();
         distributors = context2.distributors.ToList();
         using var contextLastId = DbFactory.CreateDbContext();
@@ -166,12 +167,13 @@
     }
     private async Task AddOrder()
     {
+        var context2 = DbFactory.CreateDbContext();
         Order.DistributorName = search2;
         Order.DistributorId =Convert.ToInt32(selectedDistributorId);
         Order.ProductName = search;
         Order.ProductId = Convert.ToInt32(selectedProductId);
         Order.Unit = selectedProductUnit;
-        Order.QtyOh =Convert.ToInt32(selectedProductQtyOh);
+        Order.QtyOh =Convert.ToInt32(selectedProductQtyOh)-Order.Quantity;
         Order.OrderCode = OrderID;
         Order.User = user.ToString();
         Order.UnitPrice =Convert.ToDecimal(selectedProductUnitPrice);
@@ -179,6 +181,9 @@
         using var context = DbFactory.CreateDbContext();
         context.order.Add(Order);
         await context.SaveChangesAsync();
+        await context2.Database.ExecuteSqlRawAsync(
+              "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
+                  Order.Quantity, Order.ProductId);
         Order.Id = 0;
         // NavigationManager.NavigateTo("/orders");
         Orders = context.order.Where(x => x.User == user.ToString() && x.Status == "Pending").ToList();

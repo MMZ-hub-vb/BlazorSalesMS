@@ -59,7 +59,7 @@
         </dl>
         <EditForm method="post" Model="order" OnValidSubmit="DeleteOrder" FormName="delete" Enhance>
             <button type="submit" class="btn btn-danger" disabled="@(order is null)">Delete</button> |
-            <a href="/orders">Back to List</a>
+            <a href="/orders/create">Back to List</a>
         </EditForm>
     }
 </div>
@@ -74,26 +74,27 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        order = await context.order.FirstOrDefaultAsync(m => m.Id == Id);
+        order= await context.order.FirstOrDefaultAsync(m => m.Id == Id);
         
         if (order is null)
-        {
-            NavigationManager.NavigateTo("notfound");
+       {
+          NavigationManager.NavigateTo("notfound");
         }
        
     }
 
     private async Task DeleteOrder()
     {
-        Pid = order.ProductId;
-        qty = order.Quantity;
+        int Pid = order.ProductId;
+        int qty = order.Quantity;
         using var context = DbFactory.CreateDbContext();
         using var context2 = DbFactory.CreateDbContext();
+        await context2.Database.ExecuteSqlRawAsync(
+          "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
+               qty, Pid);
         context.order.Remove(order!);
         await context.SaveChangesAsync();
-        await context2.Database.ExecuteSqlRawAsync(
-           "UPDATE Inventories SET QuantityOH = QuantityOH + {0} WHERE PId = {1}",
-                qty, Pid);
-        NavigationManager.NavigateTo("/orders");
+       
+        NavigationManager.NavigateTo("/orders/create",true);
     }
 }

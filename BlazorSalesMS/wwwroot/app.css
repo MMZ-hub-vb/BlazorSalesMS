@@ -1,6 +1,8 @@
 html, body {
-    font-family:'Book Antiqua';
-    font-size:14px
+    font-family: 'Book Antiqua';
+    font-size: 14px ;
+    color:blue;
+    font-weight: bold;
 }
 
 a, .btn-link {

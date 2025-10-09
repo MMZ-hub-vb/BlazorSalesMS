@@ -84,7 +84,7 @@
                  User=g.Key.User,
                  Status=g.Key.Status,
                 TotalPrice = g.Sum(x => (decimal)x.UnitPrice* (decimal)x.Quantity)
-             }).ToList();
+             }).Where(x=>x.Status=="Approval").ToList();
 
     }
     private async Task DeleteOrder(string OrderCode)
@@ -120,9 +120,9 @@
             {
             o.Status = "Approved";
             var inventory = context.Inventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
-            await context2.Database.ExecuteSqlRawAsync(
+            /*await context2.Database.ExecuteSqlRawAsync(
                "UPDATE Inventories SET QuantityOH = QuantityOH - {0} WHERE PId = {1}",
-                    o.Quantity,o.ProductId);
+                    o.Quantity,o.ProductId);*/
             }
         }
         await context3.SaveChangesAsync();
