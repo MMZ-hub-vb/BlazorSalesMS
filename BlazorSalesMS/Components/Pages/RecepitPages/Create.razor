@@ -88,52 +88,6 @@
 <div>
     <a href="/recepits">Back to List</a>
 </div>
-@if (IsPopupVisible)
-{
-    <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:70px;margin-left:10px">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content" style="background-color:snow;border:solid;border-radius:13px">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel">Caculation</h4>
-                    <div style="margin-left:50px;color:red;cursor:pointer" @onclick="ClosePopup">Closed</div>
-                </div>
-                <div class="model-body">
-                 <table class="table">
-                     <tr>
-                         <td>Existing QH:</td>
-                         <td>@inventory.QuantityOH</td>
-                         <td>Costing Price:</td>
-                         <td>@inventory.PdnPrice</td>
-                         </tr>
-                         <tr>
-                            <td>Sales Price:</td>
-                            <td>@inventory.SalesPrice</td>
-                            <td>Total QH:</td>
-                            <td>@(inventory.QuantityOH+Recepit.Quantity)</td>
-                            </tr >
-                            <tr>
-                           
-                            <td>New Quantity:</td>
-                            <td>@Recepit.Quantity:</td>
-                            <td>Total Buing Cost:</td>
-                            <td>@Recepit.UnitPrice</td>
-                        </tr>
-                 </table>
-                    
-                </div>
-                <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity:@inventory.QuantityOH</label>
-                    <input type="number" id="quantity" class="underline-only" />
-                </div>
-                <div>
-                    <button >Yes</button>
-                    <button>No</button>
-                </div>
-                <br />
-            </div>
-        </div>
-    </div>
-}
 @code {
 
     [SupplyParameterFromQuery]
@@ -154,22 +108,8 @@
             using var context = DbFactory.CreateDbContext();
             inventory = await context.Inventories.Where(x => x.Id == id).FirstOrDefaultAsync();
             using var context2 = DbFactory.CreateDbContext();
-            product = await context.product.Where(x => x.Id == id).FirstOrDefaultAsync();
+            //product = await context.product.Where(x => x.Id == id).FirstOrDefaultAsync();
             Recepit.ItemName = inventory.ItemName;
-    }
-
-
-    private void OnInputChanged(ChangeEventArgs e)
-    {
-        var value = e.Value?.ToString();
-        MgsCalculation = value;
-    }
-    private async Task BtnCalculatePopUp()
-    {
-        IsPopupVisible = true;
-        Recepit.ItemName = inventory.ItemName;
-
-
     }
     private async Task AddRecepit()
     {
@@ -189,11 +129,10 @@
             context.recepits.Add(Recepit);
             await context.SaveChangesAsync();
             //NavigationManager.NavigateTo("/recepits");
-            IsPopupVisible = false;
+            //IsPopupVisible = false;
             NavigationManager.NavigateTo("/inventories", true);
         
     }
-   
    
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {

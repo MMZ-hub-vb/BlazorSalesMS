@@ -37,8 +37,7 @@ namespace BlazorSalesMS.Data
 
         [Range(0.01, 1000000, ErrorMessage = "Price must be greater than zero.")]
         public decimal ? SalesPrice { get; set; }
-        public DateTime? RecepitDate { get; set; } 
-        public DateTime?  LastUpdateQtyDate { get; set; }
-        public DateTime?   ExpirationDate { get; set; }
+        public DateTime? OrderDate { get; set; } 
+       
     }
 }

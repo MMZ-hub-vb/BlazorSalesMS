@@ -10,9 +10,7 @@
 
 <h1>Distributor Inventory</h1>
 
-<p>
-    <a class="btn btn-success" href="disinventories/create">Create New</a>
-</p>
+
 
 <QuickGrid Class="table table-striped custom-quickgrid" Items="context.DisInventories">
     <PropertyColumn Property="disinventory => disinventory.DistributorId" Title="ID" />
@@ -22,14 +20,11 @@
     <PropertyColumn Property="disinventory => disinventory.QuantityOH" />
     <PropertyColumn Property="disinventory => disinventory.Unit" />
     <PropertyColumn Property="disinventory => disinventory.SalesPrice" />
-    <PropertyColumn Property="disinventory => disinventory.RecepitDate" />
  
-    <PropertyColumn Property="disinventory => disinventory.ExpirationDate" />
+    <PropertyColumn Property="disinventory => disinventory.OrderDate" />
 
     <TemplateColumn Context="disinventory">
-        <a class="btn btn-warning" href="@($"disinventories/edit?id={disinventory.Id}")">Edit</a> |
         <a  class="btn btn-info" href="@($"disinventories/details?id={disinventory.Id}")">Details</a> |
-        <a class="btn btn-danger" href="@($"disinventories/delete?id={disinventory.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 

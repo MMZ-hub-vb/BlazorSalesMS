@@ -58,17 +58,10 @@
             <dd class="col-sm-10">@disinventory.SalesPrice</dd>
         </dl>
         <dl class="row">
-            <dt class="col-sm-2">RecepitDate</dt>
-            <dd class="col-sm-10">@disinventory.RecepitDate</dd>
+            <dt class="col-sm-2">OrderDate</dt>
+            <dd class="col-sm-10">@disinventory.OrderDate</dd>
         </dl>
-        <dl class="row">
-            <dt class="col-sm-2">LastUpdateQtyDate</dt>
-            <dd class="col-sm-10">@disinventory.LastUpdateQtyDate</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">ExpirationDate</dt>
-            <dd class="col-sm-10">@disinventory.ExpirationDate</dd>
-        </dl>
+        
         <EditForm method="post" Model="disinventory" OnValidSubmit="DeleteDisInventory" FormName="delete" Enhance>
             <button type="submit" class="btn btn-danger" disabled="@(disinventory is null)">Delete</button> |
             <a href="/disinventories">Back to List</a>
