@@ -73,13 +73,13 @@
         var orders = await context3.order.Where(o => o.Status == "Approval" && o.OrderCode == OrderCode).ToListAsync();
         foreach (var o in orders)
         {
-            var disinventory = await context.DisInventories.Where(x => x.PId == o.ProductId).FirstOrDefaultAsync();
+            var disinventory = await context.DisInventories.Where(x => x.PId == o.ProductId && x.DistributorName == o.DistributorName).FirstOrDefaultAsync();
             if (o.Status == "Approval")
             {
                 o.Status = "Approved";
                 if (disinventory == null)
                 {
-                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice,DistributorId) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4},{5} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, o.Quantity, o.UnitPrice, o.DistributorId);
+                    await contextInsert.Database.ExecuteSqlRawAsync("INSERT INTO DisInventories (PId,DistributorName, SKU,ItemName, SalesSystem,Unit,Category,QuantityOH,SalesPrice,DistributorId,OrderDate) SELECT Id, {1} ,SKU, {2},SalesSystem,Unit,Category,{3},{4},{5},{6} FROM product Where Id={0}", o.ProductId, o.DistributorName, o.ProductName, o.Quantity, o.UnitPrice, o.DistributorId, o.OrderDate);
                 }
                 else
                 {
