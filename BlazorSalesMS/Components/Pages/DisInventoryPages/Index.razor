@@ -2,7 +2,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorSalesMS.Data
-
+@rendermode InteractiveServer
 @implements IAsyncDisposable
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 
@@ -11,29 +11,41 @@
 <h1>Distributor Inventory</h1>
 
 
-
-<QuickGrid Class="table table-striped custom-quickgrid" Items="context.DisInventories">
-    <PropertyColumn Property="disinventory => disinventory.DistributorId" Title="ID" />
-    <PropertyColumn Property="disinventory => disinventory.DistributorName" />
-    <PropertyColumn Property="disinventory => disinventory.ItemName" />
-    <PropertyColumn Property="disinventory => disinventory.SKU" />
-    <PropertyColumn Property="disinventory => disinventory.QuantityOH" />
-    <PropertyColumn Property="disinventory => disinventory.Unit" />
-    <PropertyColumn Property="disinventory => disinventory.SalesPrice" />
+<div class="mb-6" style="font-weight:bold">
+    <input type="text" @bind="search" class="underline-only" @bind:event="oninput" placeholder="Search Distributor Name" style="width:250px" />
+    <a style="color:darkblue">| Sort by click any Column |</a>
+  
+</div>
+<QuickGrid Items="filtereddisInentory.AsQueryable()" TGridItem="DisInventory" Class="table-striped custom-quickgrid">
+    <PropertyColumn Property="disinventory => disinventory.DistributorId" Sortable="true" />
+    <PropertyColumn Property="disinventory => disinventory.DistributorName" Sortable="true" />
  
-    <PropertyColumn Property="disinventory => disinventory.OrderDate" />
-
-    <TemplateColumn Context="disinventory">
-        <a  class="btn btn-info" href="@($"disinventories/details?id={disinventory.Id}")">Details</a> |
+    <TemplateColumn Context="disinventory" Title="Action">
+        <a class="btn btn-info" href="@($"disinventories/details?id={disinventory.DistributorId}&DistributorName={disinventory.DistributorName}")">Details</a> |
     </TemplateColumn>
 </QuickGrid>
 
 @code {
     private ApplicationDbContext context = default!;
+    private List<DisInventory> disInventoryList = [];
+    private string search = "";
+    private IEnumerable<DisInventory> filtereddisInentory =>
+        string.IsNullOrWhiteSpace(search)
+            ? disInventoryList
+            : disInventoryList.Where(i =>
+                i.DistributorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
     protected override void OnInitialized()
     {
         context = DbFactory.CreateDbContext();
+        disInventoryList = context.DisInventories
+           .GroupBy(o => new {o.DistributorId ,o.DistributorName})
+           .Select(g => new DisInventory
+           {
+               DistributorId=g.Key.DistributorId,
+               DistributorName = g.Key.DistributorName,
+             
+           }).ToList();
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

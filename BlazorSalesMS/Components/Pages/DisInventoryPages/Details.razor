@@ -1,66 +1,40 @@
 ﻿@page "/disinventories/details"
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
 @using BlazorSalesMS.Data
+@rendermode InteractiveServer
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Details</PageTitle>
+<PageTitle>DisInventory</PageTitle>
 
-<h1>Details</h1>
+<h1>@DistributorName Invetory List</h1>
+  <QuickGrid Items="disInventories.AsQueryable()" TGridItem="DisInventory" Class="table table-striped" >
+    <PropertyColumn Property="disInventories => disInventories.DistributorId" Sortable="true" Title="Code"/>
+    <PropertyColumn Property="disInventories => disInventories.ItemName" Sortable="true" />
+    <PropertyColumn Property="disInventories => disInventories.QuantityOH" Sortable="true" />
+    <PropertyColumn Property="disInventories => disInventories.OrderDate" Sortable="true" />
+</QuickGrid>
 
-<div>
-    <h2>DisInventory</h2>
-    <hr />
-    @if (disinventory is null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else {
-        <dl class="row">
-            <dt class="col-sm-2">PId</dt>
-            <dd class="col-sm-10">@disinventory.PId</dd>
-            <dt class="col-sm-2">DistributorName</dt>
-            <dd class="col-sm-10">@disinventory.DistributorName</dd>
-            <dt class="col-sm-2">ItemName</dt>
-            <dd class="col-sm-10">@disinventory.ItemName</dd>
-            <dt class="col-sm-2">SKU</dt>
-            <dd class="col-sm-10">@disinventory.SKU</dd>
-            <dt class="col-sm-2">SalesSystem</dt>
-            <dd class="col-sm-10">@disinventory.SalesSystem</dd>
-            <dt class="col-sm-2">QuantityOH</dt>
-            <dd class="col-sm-10">@disinventory.QuantityOH</dd>
-            <dt class="col-sm-2">Unit</dt>
-            <dd class="col-sm-10">@disinventory.Unit</dd>
-            <dt class="col-sm-2">Category</dt>
-            <dd class="col-sm-10">@disinventory.Category</dd>
-            <dt class="col-sm-2">buingPrice</dt>
-            <dd class="col-sm-10">@disinventory.buingPrice</dd>
-            <dt class="col-sm-2">SalesPrice</dt>
-            <dd class="col-sm-10">@disinventory.SalesPrice</dd>
-            <dt class="col-sm-2">OrderDate</dt>
-            <dd class="col-sm-10">@disinventory.OrderDate</dd>
-            <dt class="col-sm-2">OrderDate</dt>
-            
-        </dl>
         <div>
-            <a href="@($"/disinventories/edit?id={disinventory.Id}")">Edit</a> |
-            <a href="@($"/disinventories")">Back to List</a>
+            <a class="btn btn-info" href="@($"/disinventories")">Back to List</a>
         </div>
-    }
-</div>
-
+ 
 @code {
-    private DisInventory? disinventory;
-
     [SupplyParameterFromQuery]
     private int Id { get; set; }
+    [SupplyParameterFromQuery]
+    private string? DistributorName { get; set; }
+ 
+    private List<DisInventory>? disInventories = [];
+ 
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        disinventory = await context.DisInventories.FirstOrDefaultAsync(m => m.Id == Id);
+        disInventories = await context.DisInventories.Where(m => m.DistributorId == Id).ToListAsync();
 
-        if (disinventory is null)
+        if (disInventories is null)
         {
             NavigationManager.NavigateTo("notfound");
         }

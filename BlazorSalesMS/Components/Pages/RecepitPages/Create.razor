@@ -3,158 +3,159 @@
 @using BlazorSalesMS.Data
 @inject IDbContextFactory<BlazorSalesMS.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject NavigationManager NavigationManager
 @inject IWebHostEnvironment Env
 @rendermode InteractiveServer
+<PageTitle>Create</PageTitle>
+
 <h1>Create</h1>
 
 <h2>Recepit</h2>
 <hr />
-<EditForm method="post" Model="Recepit" OnValidSubmit="AddRecepit" FormName="create" Enhance>
-    <DataAnnotationsValidator />
 <div class="row">
     <div class="col-md-4">
-            <div class="mb-3">
-                <label for="itemname" class="form-label">ItemName:</label> 
-                <InputText id="itemname" @bind-Value="Recepit.ItemName" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.ItemName" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="supplyer" class="form-label">Supplyer:</label> 
-                <InputText id="supplyer" @bind-Value="Recepit.Supplyer" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.Supplyer" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="address" class="form-label">Address:</label> 
-                <InputText id="address" @bind-Value="Recepit.Address" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.Address" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="contactno" class="form-label">ContactNo:</label> 
-                <InputText id="contactno" @bind-Value="Recepit.ContactNo" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.ContactNo" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="ivoiceno" class="form-label">InvoiceNo:</label> 
-                <InputText id="ivoiceno" @bind-Value="Recepit.IvoiceNo" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.IvoiceNo" class="text-danger" /> 
+        <EditForm method="post" Model="Recepit" OnValidSubmit="AddRecepit" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="itemname" class="form-label">ItemName:</label>
+                        <InputText id="itemname" @bind-Value="Recepit.ItemName" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.ItemName" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemname" class="form-label">CateName:</label>
+                        <InputText id="itemname" @bind-Value="Recepit.Category" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.Category" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="supplyer" class="form-label">Supplyer:</label>
+                        <InputText id="supplyer" @bind-Value="Recepit.Supplyer" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.Supplyer" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address:</label>
+                        <InputText id="address" @bind-Value="Recepit.Address" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.Address" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactno" class="form-label">ContactNo:</label>
+                        <InputText id="contactno" @bind-Value="Recepit.ContactNo" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.ContactNo" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ivoiceno" class="form-label">InvoiceNo:</label>
+                        <InputText id="ivoiceno" @bind-Value="Recepit.IvoiceNo" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.IvoiceNo" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="paymentmethod" class="form-label">Payment Method:</label>
+                        <InputSelect @bind-Value="Recepit.PaymentMethod" class="underline-only">
+                            <option value="">--Select Method--</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Checq">Checq</option>
+                            <option value="Online">Online</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity:@inventory.QuantityOH</label>
+                        <InputNumber id="quantity" @bind-Value="Recepit.Quantity" class="underline-only" />
+                        <ValidationMessage For="() => Recepit.Quantity" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Unit Price(Last Unit Price:@inventory.SalesPrice)</label>
+                        <InputNumber id="amount" @bind-Value="Recepit.UnitPrice" class="underline-only" />
+                        @MgsCalculation
+                        <ValidationMessage For="() => Recepit.UnitPrice" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="recepitdate" class="form-label">RecepitDate:</label>
+                        <InputDate id="recepitdate" @bind-Value="Recepit.RecepitDate" class="underline-only" aria-required="true" />
+                        <ValidationMessage For="() => Recepit.RecepitDate" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <h3>Upload a File</h3>
+
+                        <InputFile OnChange="HandleSelected" />
+                        <p>@status</p>
+
+                        <!-- @if (!string.IsNullOrEmpty(savedFileName))
+                                                  {
+                                 <p>Saved as: <strong>@savedFileName</strong></p>
+                                 <img src="@($"/uploads/{savedFileName}")" alt="Uploaded image" style="max-width:200px" />
+                         }
+-->
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" disabled="@IsButtonVisible">Create</button>
+                </div>
+
             </div>
+        </EditForm>
     </div>
-            <div class="col-md-4">
-            <div class="mb-3">
-                <label for="paymentmethod" class="form-label">Payment Method:</label> 
-                <InputSelect @bind-Value="Recepit.PaymentMethod" class="underline-only">
-                     <option value="">--Select Method--</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Checq">Checq</option>
-                    <option value="Online">Online</option>
-                </InputSelect>
-            </div>        
-           
-            <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity:@inventory.QuantityOH</label> 
-                <InputNumber id="quantity" @bind-Value="Recepit.Quantity" class="underline-only" />
-                <ValidationMessage For="() => Recepit.Quantity" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="amount" class="form-label">Unit Price(Last Unit Price:@inventory.SalesPrice)</label> 
-                <InputNumber id="amount" @bind-Value="Recepit.UnitPrice" class="underline-only"  />
-                @MgsCalculation
-                <ValidationMessage For="() => Recepit.UnitPrice" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="recepitdate" class="form-label">RecepitDate:</label> 
-                <InputDate id="recepitdate" @bind-Value="Recepit.RecepitDate" class="underline-only" aria-required="true" />
-                <ValidationMessage For="() => Recepit.RecepitDate" class="text-danger" /> 
-            </div>
-            <div class="mb-3">
-                <h3>Upload a File</h3>
-
-                <InputFile OnChange="HandleSelected" />
-                <p>@status</p>
-
-               <!-- @if (!string.IsNullOrEmpty(savedFileName))
-                {
-                    <p>Saved as: <strong>@savedFileName</strong></p>
-                    <img src="@($"/uploads/{savedFileName}")" alt="Uploaded image" style="max-width:200px" />
-                }-->
-
-            </div>
-            
-            <button type="submit" class="btn btn-primary" disabled="@IsButtonVisible">Create</button>
-    </div>
-   
 </div>
-</EditForm>
+
 <div>
     <a href="/recepits">Back to List</a>
 </div>
-@code {
 
+@code {
     [SupplyParameterFromQuery]
     private int id { get; set; }
 
     [SupplyParameterFromForm]
-    private Recepit ? Recepit { get; set; } = new();
-    private Inventory ? inventory { get; set; } = new();
-    private Product ? product { get; set; } = new();
+    private Recepit Recepit { get; set; } = new();
+
+    private Inventory? inventory { get; set; } = new();
+    private Product? product { get; set; } = new();
     private string status = "";
     private string MgsCalculation = "";
     private string savedFileName = "";
-    private bool IsPopupVisible = false;
     private bool IsButtonVisible = true;
-    private void ClosePopup() => IsPopupVisible = false;
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     protected override async Task OnInitializedAsync()
     {
-            using var context = DbFactory.CreateDbContext();
-            inventory = await context.Inventories.Where(x => x.Id == id).FirstOrDefaultAsync();
-            using var context2 = DbFactory.CreateDbContext();
-            //product = await context.product.Where(x => x.Id == id).FirstOrDefaultAsync();
-            Recepit.ItemName = inventory.ItemName;
+        using var context = DbFactory.CreateDbContext();
+        inventory = await context.Inventories.Where(x => x.Id == id).FirstOrDefaultAsync();
+        using var context2 = DbFactory.CreateDbContext();
+        //product = await context.product.Where(x => x.Id == id).FirstOrDefaultAsync();
+        Recepit.ItemName = inventory.ItemName;
+        Recepit.Category = inventory.Category;
     }
     private async Task AddRecepit()
     {
+        using var context2 = DbFactory.CreateDbContext();
+        await context2.Database.ExecuteSqlRawAsync(
+        "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1},RecepitDate={2},LastUpdateQtyDate={2} WHERE Id = {3}",
+         Recepit.Quantity, Recepit.UnitPrice, Recepit.RecepitDate, inventory.Id);
        
-            // inventory.QuantityOH += Recepit.Quantity;
-            using var context = DbFactory.CreateDbContext();
-            using var context2 = DbFactory.CreateDbContext();
-            using var context3 = DbFactory.CreateDbContext();
-            await context2.Database.ExecuteSqlRawAsync(
-   "UPDATE Inventories SET QuantityOH = QuantityOH + {0},SalesPrice={1},RecepitDate={2},LastUpdateQtyDate={2} WHERE Id = {3}",
-        Recepit.Quantity, Recepit.UnitPrice, Recepit.RecepitDate, inventory.Id);
-
-            await context3.Database.ExecuteSqlRawAsync(
-           "UPDATE product SET SalesPrice = {0} WHERE Id = {1}",
-           Recepit.UnitPrice, id);
-         
-            context.recepits.Add(Recepit);
-            await context.SaveChangesAsync();
-            //NavigationManager.NavigateTo("/recepits");
-            //IsPopupVisible = false;
-            NavigationManager.NavigateTo("/inventories", true);
-        
+        using var context = DbFactory.CreateDbContext();
+        context.recepits.Add(Recepit);
+        await context.SaveChangesAsync();
+       // NavigationManager.NavigateTo("/recepits");
+        NavigationManager.NavigateTo("/inventories", true);
     }
-   
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {
         status = "Uploading...";
-       
         try
         {
-
             var file = e.File;
             // Ensure uploads folder exists
             var uploadPath = Path.Combine(Env.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadPath);
-
             // Use unique name to avoid overwriting
             savedFileName = $"{Guid.NewGuid()}_{file.Name}";
             var filePath = Path.Combine(uploadPath, savedFileName);
             Recepit.UrlDocName = savedFileName;
-
             await using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 5); // 5 MB
             await using var fs = new FileStream(filePath, FileMode.Create);
             await stream.CopyToAsync(fs);
-
             status = "Upload complete!";
             IsButtonVisible = false;
         }
