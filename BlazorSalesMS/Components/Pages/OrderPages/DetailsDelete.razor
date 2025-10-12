@@ -13,6 +13,10 @@
     <h2 style="color:red">Are you sure you want to delete this this Order?</h2>
     <button class="btn btn-danger" @onclick="DeleteOrder">Order Delete</button>
     <hr />
+    @if (IsSpinner)
+    {
+        <div class="spinner-border text-primary" style="margin-left:400px" />
+    }
     <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped" >
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
     <PropertyColumn Property="order => order.DistributorName" Sortable="true"/>
@@ -51,6 +55,7 @@
     private string? OrderCode { get; set; }
     bool IsPopupMgs = false;
     string PopupMgs = "";
+    bool IsSpinner = false;
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
@@ -82,6 +87,7 @@
     }
     private async Task DeleteOrder()
     {
+        IsSpinner = true;
         var context3 = DbFactory.CreateDbContext();
         var context4 = DbFactory.CreateDbContext();
         var context5 = DbFactory.CreateDbContext();
@@ -101,5 +107,5 @@
         NavigationManager.NavigateTo("/orders", true);
     }
     async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; }
-
+    async Task Spinning() { IsSpinner = true; }
 }

@@ -22,6 +22,10 @@
     <label for="sortCode" style="color:green">Approved</label> |
     <input type="radio" id="sortCode" name="sortOption" @onclick="IsChecked2" />
     <label for="sortCode" style="color:red">Approval</label>
+    @if (IsSpinner)
+    {
+        <div class="spinner-border text-primary" style="margin-left:400px" />
+    }
 </div>
 
 <QuickGrid Items="filteredOrders.AsQueryable()" TGridItem="Order" Class="table-striped custom-quickgrid">
@@ -34,10 +38,11 @@
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
         <a class="btn btn-warning"  @onclick="() => ApprovedOrder(order.OrderCode)">Approved</a> |
-        <a class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
-        <a class="btn btn-danger" href="@($"orders/detailsdelete?OrderCode={order.OrderCode}")">Delete Order</a> |
+        <a @onclick="Spinning" class="btn btn-info" href="@($"orders/details?OrderCode={order.OrderCode}")">Details</a> |
+        <a class="btn btn-danger" @onclick="Spinning" href="@($"orders/detailsdelete?OrderCode={order.OrderCode}")">Delete Order</a> |
     </TemplateColumn>
 </QuickGrid>
+
 @if (IsPopupMgs)
 {
     <div class="modal" tabindex="-1" role="dialog" style="display:block;margin-top:100px;margin-left:10px">
@@ -60,6 +65,7 @@
     private string? sortColumn;
     private bool ascending = true;
     bool IsPopupMgs = false;
+    bool IsSpinner =false;
     string PopupMgs = "";
     string rowcolor = "";
     private IEnumerable<Order> filteredOrders =>
@@ -187,4 +193,5 @@
     }
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
     async Task CloseMgs() { IsPopupMgs = false;  PopupMgs= ""; NavigationManager.NavigateTo("/orders", true); }
+    async Task Spinning() { IsSpinner = true; }
 }

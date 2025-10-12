@@ -13,6 +13,10 @@
 <div>
     <h2>Order</h2>
     <button class="btn btn-success" @onclick="ApprovedOrder">Approved Order</button>
+    @if (IsSpinner)
+    {
+        <div class="spinner-border text-primary" style="margin-left:400px" />
+    }
     <hr />
     <QuickGrid Items="order.AsQueryable()" TGridItem="Order" Class="table-striped" >
     <PropertyColumn Property="order => order.OrderCode" Sortable="true" />
@@ -27,7 +31,7 @@
     <PropertyColumn Property="order => order.User" />
     <TemplateColumn Context="order" Title="Action">
         <a class="btn btn-warning" href="@($"orders/edit?id={order.Id}")">Edit</a> |
-        <a class="btn btn-danger" href="@($"orders/delete?id={order.Id}")">Delete</a>
+        <a @onclick="Spinning" class="btn btn-danger" href="@($"orders/delete?id={order.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 <hr />
@@ -55,6 +59,7 @@
     private string? OrderCode { get; set; }
     bool IsPopupMgs = false;
     string PopupMgs = "";
+    bool IsSpinner = false;
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
@@ -67,6 +72,7 @@
     }
     async Task ApprovedOrder()
     {
+        IsSpinner = true;
         var contextInsert = DbFactory.CreateDbContext();
         var context2 = DbFactory.CreateDbContext();
         var context3 = DbFactory.CreateDbContext();
@@ -91,10 +97,11 @@
             }
         }
         await context3.SaveChangesAsync();
+        IsSpinner = false;
         PopupMgs = " This order has been Approved!!";
         IsPopupMgs = true;
         // NavigationManager.NavigateTo("/orders/details", true);
     }
     async Task CloseMgs() { IsPopupMgs = false; PopupMgs = ""; NavigationManager.NavigateTo("/orders", true); }
-
+    async Task Spinning() { IsSpinner = true; }
 }
